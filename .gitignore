@@ -1,0 +1,25 @@
+# Dependencies
+node_modules
+
+# Environment variables
+.env
+
+# Supabase files
+supabase/config.toml
+src/integrations/supabase/client.ts
+supabase/.branches
+supabase/.temp
+
+# Database
+*.db
+
+# Build outputs
+dist/
+
+# IDE files
+.vscode/settings.json
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
