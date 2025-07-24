@@ -1,6 +1,6 @@
 
 import { Folder, Play, Pause, MoreHorizontal } from 'lucide-react';
-import { Collection } from '@/types/music';
+import { Collection } from '@/types/ICollection';
 import { Button } from '@/components/ui/button';
 
 interface CollectionCardProps {

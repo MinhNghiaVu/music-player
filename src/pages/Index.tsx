@@ -5,7 +5,7 @@ import CollectionCard from '@/components/CollectionCard';
 import Player from '@/components/Player';
 import AudioVisualizer from '@/components/AudioVisualizer';
 import ImportSongs from '@/components/ImportSongs';
-import { Song, Collection, PlayerState } from '@/types/music';
+import { Song, Collection, PlayerState } from '@/types/ICollection';
 import { generateId } from '@/lib/utils';
 
 const Index = () => {

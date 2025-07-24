@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Plus, Folder, Check } from 'lucide-react';
-import { Collection, Song } from '@/types/music';
+import { Collection, Song } from '@/types/ICollection';
 import CreatePlaylistDialog from './CreatePlaylistDialog';
 import { useToast } from '@/components/ui/use-toast';
 

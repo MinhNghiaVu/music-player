@@ -1,6 +1,6 @@
 
 import { Play, Pause, Music } from 'lucide-react';
-import { Song, Collection } from '@/types/music';
+import { Song, Collection } from '@/types/ICollection';
 import { Button } from '@/components/ui/button';
 import { formatDuration } from '@/lib/utils';
 import SongActionsDropdown from './SongActionsDropdown';
