@@ -14,3 +14,15 @@ export interface ISong {
   likes?: number;
   dislikes?: number;
 }
+
+export interface ISongSearchParams {
+  title?: string;
+  artist?: string;
+  album?: string;
+  genre?: string[];
+  durationRange?: [number, number];
+  sortBy?: 'title' | 'artist' | 'album' | 'duration' | 'playCount';
+  sortOrder?: 'asc' | 'desc';
+  page?: number;
+  pageSize?: number;
+}
