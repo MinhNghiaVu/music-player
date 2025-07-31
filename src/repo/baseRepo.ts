@@ -1,8 +1,8 @@
 // GENERIC REPOSITORY CLASS - for scalability, most CRUD repos are the same anyways
 
-import { supabase } from "@/integrations/supabase/client";
-import type { Database } from "@/integrations/supabase/types";
-import type { IResponse } from "@/types/IResponse";
+import { supabase } from "@/database/client";
+import type { Database } from "@/database/types";
+import type { IResponse } from "@/database/interfaces/IResponse";
 
 // Generic types - suitable for all tables
 type TableName = keyof Database["public"]["Tables"]; // A table name that actually exists in the db

@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Song, Collection } from '@/types/ICollection';
+import { Song, Collection } from '@/database/interfaces/ICollection';
 import AddToPlaylistDialog from './AddToPlaylistDialog';
 
 interface SongActionsDropdownProps {

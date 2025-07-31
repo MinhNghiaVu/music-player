@@ -1,4 +1,4 @@
-import { IResponse } from "@/types/IResponse";
+import { IResponse } from "@/database/interfaces/IResponse";
 
 
 export function handleDatabaseError<T>(

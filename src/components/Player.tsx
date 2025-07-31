@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Shuffle, Repeat, Music } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { PlayerState } from '@/types/ICollection';
+import { PlayerState } from '@/database/interfaces/ICollection';
 import { formatDuration } from '@/lib/utils';
 
 interface PlayerProps {

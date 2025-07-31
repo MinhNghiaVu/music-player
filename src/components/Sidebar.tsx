@@ -1,6 +1,6 @@
 
 import { Home, Music, Heart, Download } from 'lucide-react';
-import { Collection } from '@/types/ICollection';
+import { Collection } from '@/database/interfaces/ICollection';
 import CreatePlaylistDialog from './CreatePlaylistDialog';
 import Settings from './Settings';
 
