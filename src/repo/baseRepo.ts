@@ -58,15 +58,16 @@ export class BaseRepository<T extends TableName> {
     }
   }
 
-  // READ: Get all records
-  async getAll(): Promise<IResponse<TableRow<T>[]>> {
+  // READ: Get records
+  async getWhere(column: string, value: any): Promise<IResponse<TableRow<T>[]>> {
     try {
       const { data: result, error } = await supabase
         .from(this.tableName)
-        .select("*");
+        .select("*")
+        .eq(column, value);
 
       if (error) {
-        console.error(`Error fetching all ${this.tableName}:`, {
+        console.error(`Error fetching ${this.tableName} where ${column} = ${value}:`, {
           code: error.code,
           message: error.message,
           details: error.details,
@@ -74,7 +75,7 @@ export class BaseRepository<T extends TableName> {
         });
         return {
           success: false,
-          message: `Failed to fetch ${this.tableName}: ${error.message}`
+          message: `Failed to fetch ${this.tableName} where ${column} = ${value}: ${error.message}`
         };
       }
 
@@ -84,53 +85,10 @@ export class BaseRepository<T extends TableName> {
         data: result || []
       };
     } catch (error) {
-      console.error(`Unexpected error fetching all ${this.tableName}:`, error);
+      console.error(`Unexpected error fetching ${this.tableName} where ${column} = ${value}:`, error);
       return {
         success: false,
         message: `Unexpected error occurred while fetching ${this.tableName}`
-      };
-    }
-  }
-
-  // READ: Get by ID
-  async getById(id: string | number): Promise<IResponse<TableRow<T>>> {
-    try {
-      const { data: result, error } = await supabase
-        .from(this.tableName)
-        .select("*")
-        .eq("id", id)
-        .single();
-
-      if (error) {
-        console.error(`Error fetching ${this.tableName} by ID ${id}:`, {
-          code: error.code,
-          message: error.message,
-          details: error.details,
-          hint: error.hint
-        });
-        return {
-          success: false,
-          message: `Failed to fetch ${this.tableName} with ID ${id}: ${error.message}`
-        };
-      }
-
-      if (!result) {
-        return {
-          success: false,
-          message: `${this.tableName} with ID ${id} not found`
-        };
-      }
-
-      return {
-        success: true,
-        message: `${this.tableName} fetched successfully`,
-        data: result
-      };
-    } catch (error) {
-      console.error(`Unexpected error fetching ${this.tableName} by ID ${id}:`, error);
-      return {
-        success: false,
-        message: `Unexpected error occurred while fetching ${this.tableName} with ID ${id}`
       };
     }
   }
@@ -219,41 +177,6 @@ export class BaseRepository<T extends TableName> {
       return {
         success: false,
         message: `Unexpected error occurred while deleting ${this.tableName} with ID ${id}`
-      };
-    }
-  }
-
-  // UTILITY: Get records with custom query
-  async getWhere(column: string, value: any): Promise<IResponse<TableRow<T>[]>> {
-    try {
-      const { data: result, error } = await supabase
-        .from(this.tableName)
-        .select("*")
-        .eq(column, value);
-
-      if (error) {
-        console.error(`Error fetching ${this.tableName} where ${column} = ${value}:`, {
-          code: error.code,
-          message: error.message,
-          details: error.details,
-          hint: error.hint
-        });
-        return {
-          success: false,
-          message: `Failed to fetch ${this.tableName} where ${column} = ${value}: ${error.message}`
-        };
-      }
-
-      return {
-        success: true,
-        message: `${this.tableName} fetched successfully`,
-        data: result || []
-      };
-    } catch (error) {
-      console.error(`Unexpected error fetching ${this.tableName} where ${column} = ${value}:`, error);
-      return {
-        success: false,
-        message: `Unexpected error occurred while fetching ${this.tableName}`
       };
     }
   }

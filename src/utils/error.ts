@@ -24,7 +24,6 @@ export function handleDatabaseError<T>(
   };
 }
 
-// Utils for util function :exploding_head:
 // 5xx errors
 export function handleUnexpectedError<T>(
   operation: string,
