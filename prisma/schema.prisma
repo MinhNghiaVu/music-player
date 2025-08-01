@@ -1,5 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+/// import "./song.prisma"
+/// import "./collection.prisma"
 
 datasource db {
   provider = "postgresql"
@@ -8,26 +9,4 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
-}
-
-model Song {
-  id          String   @id @default(uuid())
-  title       String
-  artist      String
-  album       String?
-  duration    Int      // in seconds
-  genre       String[]
-  audioUrl    String   @map("audio_url")
-  coverUrl    String?  @map("cover_url")
-  uploadedAt  DateTime @default(now()) @map("uploaded_at")
-  playCount   Int      @default(0) @map("play_count")
-  liked       Boolean  @default(false)
-  disliked    Boolean  @default(false)
-  likes       Int      @default(0)
-  dislikes    Int      @default(0)
-  userId      String   @map("user_id")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @default(now()) @map("updated_at")
-
-  @@map("songs")
 }
