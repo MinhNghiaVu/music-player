@@ -2,27 +2,11 @@ export interface ISong {
   id: string;
   title: string;
   artist: string;
-  album?: string;
   duration: number;
-  genre: string[];
-  audioUrl: string;
-  coverUrl?: string;
-  uploadedAt: Date;
-  playCount: number;
-  liked?: boolean;
-  disliked?: boolean;
-  likes?: number;
-  dislikes?: number;
+  url: string;
+  created_at: string;
+  updated_at: string;
 }
 
-export interface ISongSearchParams {
-  title?: string;
-  artist?: string;
-  album?: string;
-  genre?: string[];
-  durationRange?: [number, number];
-  sortBy?: 'title' | 'artist' | 'album' | 'duration' | 'playCount';
-  sortOrder?: 'asc' | 'desc';
-  page?: number;
-  pageSize?: number;
-}
+export type SongInsert = Omit<ISong, 'id' | 'created_at' | 'updated_at'>;
+export type SongUpdate = Partial<SongInsert>;

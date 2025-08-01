@@ -1,46 +1,67 @@
-import { PrismaClient } from '@prisma/client';
+import { BaseRepository } from './baseRepo';
+import { supabase } from '@/database/client';
+import type { IResponse } from '@/database/interfaces/IResponse';
+import type { ISong } from '@/database/interfaces/ISong';
 
-const prisma = new PrismaClient();
+class SongRepository extends BaseRepository<'song'> {
+  constructor() {
+    super('song');
+  }
 
-const songRepo = {
-  // Create a new song
-  create: async (songData: any) => {
-    return await prisma.song.create({
-      data: songData,
-    });
-  },
+  async findById(id: string): Promise<IResponse<ISong | null>> {
+    try {
+      const { data: result, error } = await supabase
+        .from(this.tableName as string)
+        .select('*')
+        .eq('id', id)
+        .single();
 
-  // Find a song by ID
-  findById: async (id: string) => {
-    return await prisma.song.findUnique({
-      where: { id },
-    });
-  },
+      if (error) {
+        return {
+          success: false,
+          message: `Failed to fetch song by id ${id}: ${error.message}`
+        };
+      }
 
-  // Update a song
-  update: async (id: string, updateData: any) => {
-    return await prisma.song.update({
-      where: { id },
-      data: updateData,
-    });
-  },
+      return {
+        success: true,
+        message: 'Song fetched successfully',
+        data: result
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: `Unexpected error fetching song: ${error instanceof Error ? error.message : String(error)}`
+      };
+    }
+  }
 
-  // Delete a song
-  delete: async (id: string) => {
-    return await prisma.song.delete({
-      where: { id },
-    });
-  },
+  async list(): Promise<IResponse<ISong[]>> {
+    try {
+      const { data: result, error } = await supabase
+        .from(this.tableName as string)
+        .select('*');
 
-  // List all songs
-  list: async () => {
-    return await prisma.song.findMany();
-  },
+      if (error) {
+        return {
+          success: false,
+          message: `Failed to fetch all songs: ${error.message}`
+        };
+      }
 
-  // Disconnect Prisma client
-  disconnect: async () => {
-    await prisma.$disconnect();
-  },
-};
+      return {
+        success: true,
+        message: 'Songs fetched successfully',
+        data: result || []
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: `Unexpected error fetching songs: ${error instanceof Error ? error.message : String(error)}`
+      };
+    }
+  }
+}
 
+const songRepo = new SongRepository();
 export default songRepo;
