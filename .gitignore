@@ -27,3 +27,8 @@ Thumbs.db
 rateCheck.js
 /generated/prisma
 supabase/migrations
+
+# Test artifacts
+coverage/
+.vitest
+__snapshots__/

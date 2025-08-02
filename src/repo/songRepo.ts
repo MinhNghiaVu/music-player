@@ -1,67 +1,57 @@
 import { BaseRepository } from './baseRepo';
-import { supabase } from '@/database/client';
 import type { IResponse } from '@/database/interfaces/IResponse';
-import type { ISong } from '@/database/interfaces/ISong';
+import prisma from '@/database/config';
 
-class SongRepository extends BaseRepository<'song'> {
+class TrackRepository extends BaseRepository {
   constructor() {
-    super('song');
+    super("track");
   }
 
-  async findById(id: string): Promise<IResponse<ISong | null>> {
+  async findById(id: string): Promise<IResponse<any>> {
     try {
-      const { data: result, error } = await supabase
-        .from(this.tableName as string)
-        .select('*')
-        .eq('id', id)
-        .single();
+      const track = await prisma.track.findUnique({
+        where: { id }
+      });
 
-      if (error) {
+      if (!track) {
         return {
           success: false,
-          message: `Failed to fetch song by id ${id}: ${error.message}`
+          message: "Track not found"
         };
       }
 
       return {
         success: true,
-        message: 'Song fetched successfully',
-        data: result
+        message: "Track fetched successfully",
+        data: track
       };
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Error fetching track:", error);
       return {
         success: false,
-        message: `Unexpected error fetching song: ${error instanceof Error ? error.message : String(error)}`
+        message: `Failed to fetch track: ${error.message}`
       };
     }
   }
 
-  async list(): Promise<IResponse<ISong[]>> {
+  async list(): Promise<IResponse<any[]>> {
     try {
-      const { data: result, error } = await supabase
-        .from(this.tableName as string)
-        .select('*');
-
-      if (error) {
-        return {
-          success: false,
-          message: `Failed to fetch all songs: ${error.message}`
-        };
-      }
+      const tracks = await prisma.track.findMany();
 
       return {
         success: true,
-        message: 'Songs fetched successfully',
-        data: result || []
+        message: "Tracks fetched successfully",
+        data: tracks
       };
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Error fetching tracks:", error);
       return {
         success: false,
-        message: `Unexpected error fetching songs: ${error instanceof Error ? error.message : String(error)}`
+        message: `Failed to fetch tracks: ${error.message}`
       };
     }
   }
 }
 
-const songRepo = new SongRepository();
-export default songRepo;
+const trackRepo = new TrackRepository();
+export default trackRepo;
