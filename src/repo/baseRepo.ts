@@ -30,7 +30,7 @@ export class BaseRepository {
   }
 
   // READ: Get records by field
-  async getWhere(column: string, value: any): Promise极<IResponse<any[]>> {
+  async readWhere(column: string, value: any): Promise<IResponse<any[]>> {
     try {
       const result = await prisma[this.modelName].findMany({
         where: { [column]: value }

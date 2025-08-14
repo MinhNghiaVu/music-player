@@ -2,21 +2,21 @@ import { BaseRepository } from './baseRepo';
 import type { IResponse } from '@/database/interfaces/IResponse';
 import prisma from '@/database/config';
 
-class TrackRepository extends BaseRepository {
+class SongRepository extends BaseRepository {
   constructor() {
-    super("track");
+    super("song");
   }
 
   async findById(id: string): Promise<IResponse<any>> {
     try {
-      const track = await prisma.track.findUnique({
+      const song = await prisma.song.findUnique({
         where: { id }
       });
 
-      if (!track) {
+      if (!song) {
         return {
           success: false,
-          message: "Track not found"
+          message: "Song not found"
         };
       }
 
