@@ -1,0 +1,20 @@
+// Offline downloads for mobile apps
+model OfflineDownload {
+  id               String    @id @default(uuid())
+  user_id          String
+  track_id         String
+  download_quality String    @default("normal") @db.VarChar(20)
+  downloaded_at    DateTime  @default(now())
+  expires_at       DateTime?
+  file_size_bytes  BigInt?
+
+  // Relations
+  user  User  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  track Track @relation(fields: [track_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, track_id])
+  @@map("offline_downloads")
+  @@index([user_id])
+  @@index([track_id])
+  @@index([expires_at])
+}

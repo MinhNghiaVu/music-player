@@ -1,0 +1,16 @@
+// User likes (tracks, albums, playlists, artists)
+model UserLike {
+  id           String   @id @default(uuid())
+  user_id      String
+  likeable_type String  @db.VarChar(20)
+  likeable_id  String
+  created_at   DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, likeable_type, likeable_id])
+  @@map("user_likes")
+  @@index([user_id])
+  @@index([likeable_type, likeable_id])
+}

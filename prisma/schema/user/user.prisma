@@ -1,0 +1,30 @@
+model User {
+  id                   String    @id @default(uuid())
+  username             String    @unique @db.VarChar(50)
+  email                String    @unique @db.VarChar(255)
+  password_hash        String    @db.VarChar(255)
+  display_name         String?   @db.VarChar(100)
+  profile_image_url    String?
+  subscription_tier    String    @default("free") @db.VarChar(20)
+  country_code         String?   @db.Char(2)
+  language_preference  String    @default("en") @db.VarChar(10)
+  created_at           DateTime  @default(now())
+  updated_at           DateTime  @default(now()) @updatedAt
+  last_active_at       DateTime?
+  is_active            Boolean   @default(true)
+
+  // Relations
+  playlists            Playlist[]
+  listening_history    ListeningHistory[]
+  user_likes          UserLike[]
+  user_follows        UserFollow[]
+  user_library        UserLibrary[]
+  user_preferences    UserPreferences?
+  offline_downloads   OfflineDownload[]
+  playlist_tracks_added PlaylistTrack[] @relation("AddedBy")
+
+  @@map("users")
+  @@index([email])
+  @@index([username])
+  @@index([subscription_tier])
+}

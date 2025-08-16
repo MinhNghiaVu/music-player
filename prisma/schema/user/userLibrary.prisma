@@ -1,0 +1,17 @@
+// User library/saved content
+model UserLibrary {
+  id       String   @id @default(uuid())
+  user_id  String
+  item_type String  @db.VarChar(20)
+  item_id  String
+  added_at DateTime @default(now())
+
+  // Relations
+  user  User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  track Track? @relation(fields: [item_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, item_type, item_id])
+  @@map("user_library")
+  @@index([user_id])
+  @@index([item_type, item_id])
+}

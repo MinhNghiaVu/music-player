@@ -1,0 +1,17 @@
+// Artist-Album relationship (many-to-many)
+model AlbumArtist {
+  id         String   @id @default(uuid())
+  album_id   String
+  artist_id  String
+  role       String   @default("primary") @db.VarChar(50)
+  created_at DateTime @default(now())
+
+  // Relations
+  album  Album  @relation(fields: [album_id], references: [id], onDelete: Cascade)
+  artist Artist @relation(fields: [artist_id], references: [id], onDelete: Cascade)
+
+  @@unique([album_id, artist_id, role])
+  @@map("album_artists")
+  @@index([album_id])
+  @@index([artist_id])
+}

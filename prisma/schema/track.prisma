@@ -1,0 +1,33 @@
+model Track {
+  id               String   @id @default(uuid())
+  title            String   @db.VarChar(255)
+  duration_seconds Int
+  track_number     Int?
+  disc_number      Int      @default(1)
+  album_id         String?
+  audio_file_url   String
+  preview_url      String?
+  lyrics           String?
+  explicit_content Boolean  @default(false)
+  isrc             String?  @db.VarChar(20)
+  play_count       BigInt   @default(0)
+  like_count       Int      @default(0)
+  genres           String[]
+  release_date     DateTime? @db.Date
+  created_at       DateTime @default(now())
+  updated_at       DateTime @default(now()) @updatedAt
+
+  // Relations
+  album             Album?             @relation(fields: [album_id], references: [id], onDelete: SetNull)
+  track_artists     TrackArtist[]
+  playlist_tracks   PlaylistTrack[]
+  listening_history ListeningHistory[]
+  user_library      UserLibrary[]
+  offline_downloads OfflineDownload[]
+
+  @@map("tracks")
+  @@index([title])
+  @@index([album_id])
+  @@index([play_count])
+  @@index([release_date])
+}

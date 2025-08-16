@@ -1,0 +1,21 @@
+// User listening history
+model ListeningHistory {
+  id                   String   @id @default(uuid())
+  user_id              String
+  track_id             String
+  played_at            DateTime @default(now())
+  play_duration_seconds Int?
+  completed            Boolean  @default(false)
+  device_type          String?  @db.VarChar(50)
+  source               String?  @db.VarChar(50)
+  source_id            String?
+
+  // Relations
+  user  User  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  track Track @relation(fields: [track_id], references: [id], onDelete: Cascade)
+
+  @@map("listening_history")
+  @@index([user_id])
+  @@index([track_id])
+  @@index([played_at])
+}
