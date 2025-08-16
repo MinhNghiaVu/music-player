@@ -1,66 +1,66 @@
 import { Prisma } from '@prisma/client';
 import { AbstractBaseRepository } from './BaseRepository';
 import { 
-  TrackModel, 
-  TrackWithRelations,
+  SongModel, 
+  SongWithRelations,
   RepositoryOptions,
   NotFoundError,
   ValidationError
 } from './types';
 import { logger } from '../utils/logger';
 
-export class TrackRepository extends AbstractBaseRepository<
-  TrackModel,
-  Prisma.TrackCreateInput,
-  Prisma.TrackUpdateInput,
-  Prisma.TrackWhereUniqueInput
+export class SongRepository extends AbstractBaseRepository<
+  SongModel,
+  Prisma.SongCreateInput,
+  Prisma.SongUpdateInput,
+  Prisma.SongWhereUniqueInput
 > {
   constructor() {
-    super('track');
+    super('song');
   }
 
   // Create operations
-  async createTrack(data: Prisma.TrackCreateInput): Promise<TrackModel> {
+  async createSong(data: Prisma.SongCreateInput): Promise<SongModel> {
     return this.create(data);
   }
 
-  async createManyTracks(data: Prisma.TrackCreateInput[]): Promise<Prisma.BatchPayload> {
+  async createManySongs(data: Prisma.SongCreateInput[]): Promise<Prisma.BatchPayload> {
     return this.createMany(data);
   }
 
   // Read operations
-  async readTrack(id: string, options?: RepositoryOptions): Promise<TrackModel | null> {
+  async readSong(id: string, options?: RepositoryOptions): Promise<SongModel | null> {
     return this.findUnique({ id }, options);
   }
 
-  async readTrackWithRelations(id: string): Promise<TrackWithRelations | null> {
+  async readSongWithRelations(id: string): Promise<SongWithRelations | null> {
     return this.findUnique(
       { id },
       {
         include: {
           album: true,
-          track_artists: {
+          song_artists: {
             include: {
               artist: true,
             },
           },
         },
       }
-    ) as Promise<TrackWithRelations | null>;
+    ) as Promise<SongWithRelations | null>;
   }
 
-  async readTracks(options?: RepositoryOptions): Promise<TrackModel[]> {
+  async readSongs(options?: RepositoryOptions): Promise<SongModel[]> {
     return this.findMany(options);
   }
 
-  async readTracksPaginated(options?: RepositoryOptions) {
+  async readSongsPaginated(options?: RepositoryOptions) {
     return this.findManyPaginated(options);
   }
 
-  async readTracksByTitle(
+  async readSongsByTitle(
     title: string,
     options?: RepositoryOptions
-  ): Promise<TrackModel[]> {
+  ): Promise<SongModel[]> {
     return this.findMany({
       ...options,
       where: {
@@ -73,10 +73,10 @@ export class TrackRepository extends AbstractBaseRepository<
     });
   }
 
-  async readTracksByAlbum(
+  async readSongsByAlbum(
     albumId: string,
     options?: RepositoryOptions
-  ): Promise<TrackModel[]> {
+  ): Promise<SongModel[]> {
     return this.findMany({
       ...options,
       where: {
@@ -85,15 +85,15 @@ export class TrackRepository extends AbstractBaseRepository<
       },
       orderBy: [
         { disc_number: 'asc' },
-        { track_number: 'asc' },
+        { song_number: 'asc' },
       ] as any,
     });
   }
 
-  async readTracksByGenres(
+  async readSongsByGenres(
     genres: string[],
     options?: RepositoryOptions
-  ): Promise<TrackModel[]> {
+  ): Promise<SongModel[]> {
     return this.findMany({
       ...options,
       where: {
@@ -105,11 +105,11 @@ export class TrackRepository extends AbstractBaseRepository<
     });
   }
 
-  async readTracksByDuration(
+  async readSongsByDuration(
     minDuration?: number,
     maxDuration?: number,
     options?: RepositoryOptions
-  ): Promise<TrackModel[]> {
+  ): Promise<SongModel[]> {
     const durationFilter: any = {};
     if (minDuration !== undefined) durationFilter.gte = minDuration;
     if (maxDuration !== undefined) durationFilter.lte = maxDuration;
@@ -123,10 +123,10 @@ export class TrackRepository extends AbstractBaseRepository<
     });
   }
 
-  async readPopularTracks(
+  async readPopularSongs(
     limit: number = 50,
     options?: RepositoryOptions
-  ): Promise<TrackModel[]> {
+  ): Promise<SongModel[]> {
     return this.findMany({
       ...options,
       orderBy: {
@@ -136,10 +136,10 @@ export class TrackRepository extends AbstractBaseRepository<
     });
   }
 
-  async readRecentTracks(
+  async readRecentSongs(
     daysSince: number = 30,
     limit: number = 50
-  ): Promise<TrackModel[]> {
+  ): Promise<SongModel[]> {
     const sinceDate = new Date();
     sinceDate.setDate(sinceDate.getDate() - daysSince);
 
@@ -156,7 +156,7 @@ export class TrackRepository extends AbstractBaseRepository<
     });
   }
 
-  async readExplicitTracks(options?: RepositoryOptions): Promise<TrackModel[]> {
+  async readExplicitSongs(options?: RepositoryOptions): Promise<SongModel[]> {
     return this.findMany({
       ...options,
       where: {
@@ -166,10 +166,10 @@ export class TrackRepository extends AbstractBaseRepository<
     });
   }
 
-  async readTracksByReleaseYear(
+  async readSongsByReleaseYear(
     year: number,
     options?: RepositoryOptions
-  ): Promise<TrackModel[]> {
+  ): Promise<SongModel[]> {
     const startDate = new Date(`${year}-01-01`);
     const endDate = new Date(`${year}-12-31`);
 
@@ -186,16 +186,16 @@ export class TrackRepository extends AbstractBaseRepository<
   }
 
   // Update operations
-  async updateTrack(id: string, data: Prisma.TrackUpdateInput): Promise<TrackModel> {
+  async updateSong(id: string, data: Prisma.SongUpdateInput): Promise<SongModel> {
     return this.update({ id }, data);
   }
 
-  async updateTrackDetails(
+  async updateSongDetails(
     id: string,
-    trackData: {
+    songData: {
       title?: string;
       duration_seconds?: number;
-      track_number?: number;
+      song_number?: number;
       disc_number?: number;
       preview_url?: string;
       lyrics?: string;
@@ -203,20 +203,20 @@ export class TrackRepository extends AbstractBaseRepository<
       isrc?: string;
       genres?: string[];
     }
-  ): Promise<TrackModel> {
-    const track = await this.readTrack(id);
-    if (!track) {
-      throw new NotFoundError('Track', id);
+  ): Promise<SongModel> {
+    const song = await this.readSong(id);
+    if (!song) {
+      throw new NotFoundError('Song', id);
     }
 
-    if (trackData.duration_seconds !== undefined && trackData.duration_seconds <= 0) {
+    if (songData.duration_seconds !== undefined && songData.duration_seconds <= 0) {
       throw new ValidationError('Duration must be positive', 'duration_seconds');
     }
 
-    return this.update({ id }, trackData);
+    return this.update({ id }, songData);
   }
 
-  async updateTrackPlayCount(id: string, increment: number = 1): Promise<TrackModel> {
+  async updateSongPlayCount(id: string, increment: number = 1): Promise<SongModel> {
     if (increment < 0) {
       throw new ValidationError('Play count increment cannot be negative', 'increment');
     }
@@ -232,7 +232,7 @@ export class TrackRepository extends AbstractBaseRepository<
     );
   }
 
-  async updateTrackLikeCount(id: string, increment: number): Promise<TrackModel> {
+  async updateSongLikeCount(id: string, increment: number): Promise<SongModel> {
     return this.update(
       { id },
       {
@@ -244,13 +244,13 @@ export class TrackRepository extends AbstractBaseRepository<
     );
   }
 
-  async updateTrackPosition(
+  async updateSongPosition(
     id: string,
-    trackNumber: number,
+    songNumber: number,
     discNumber: number = 1
-  ): Promise<TrackModel> {
-    if (trackNumber <= 0) {
-      throw new ValidationError('Track number must be positive', 'track_number');
+  ): Promise<SongModel> {
+    if (songNumber <= 0) {
+      throw new ValidationError('Song number must be positive', 'song_number');
     }
 
     if (discNumber <= 0) {
@@ -260,30 +260,30 @@ export class TrackRepository extends AbstractBaseRepository<
     return this.update(
       { id },
       {
-        track_number: trackNumber,
+        song_number: songNumber,
         disc_number: discNumber,
         updated_at: new Date(),
       }
     );
   }
 
-  async updateManyTracks(
-    where: Prisma.TrackWhereInput,
-    data: Prisma.TrackUpdateInput
+  async updateManySongs(
+    where: Prisma.SongWhereInput,
+    data: Prisma.SongUpdateInput
   ): Promise<Prisma.BatchPayload> {
     return this.updateMany(where, data);
   }
 
   // Delete operations
-  async deleteTrack(id: string): Promise<TrackModel> {
+  async deleteSong(id: string): Promise<SongModel> {
     return this.delete({ id });
   }
 
-  async deleteManyTracks(where?: Prisma.TrackWhereInput): Promise<Prisma.BatchPayload> {
+  async deleteManySongs(where?: Prisma.SongWhereInput): Promise<Prisma.BatchPayload> {
     return this.deleteMany(where);
   }
 
-  async deleteTracksWithZeroPlays(
+  async deleteSongsWithZeroPlays(
     olderThanDays: number = 365
   ): Promise<Prisma.BatchPayload> {
     const cutoffDate = new Date();
@@ -298,15 +298,15 @@ export class TrackRepository extends AbstractBaseRepository<
   }
 
   // Utility operations
-  async trackExists(id: string): Promise<boolean> {
+  async songExists(id: string): Promise<boolean> {
     return this.exists({ id });
   }
 
-  async countTracks(options?: { where?: Prisma.TrackWhereInput }): Promise<number> {
+  async countSongs(options?: { where?: Prisma.SongWhereInput }): Promise<number> {
     return this.count(options);
   }
 
-  async countTracksByGenre(genre: string): Promise<number> {
+  async countSongsByGenre(genre: string): Promise<number> {
     return this.count({
       where: {
         genres: {
@@ -316,7 +316,7 @@ export class TrackRepository extends AbstractBaseRepository<
     });
   }
 
-  async countExplicitTracks(): Promise<number> {
+  async countExplicitSongs(): Promise<number> {
     return this.count({
       where: {
         explicit_content: true,
@@ -326,7 +326,7 @@ export class TrackRepository extends AbstractBaseRepository<
 
   async getTotalPlayCount(): Promise<bigint> {
     try {
-      const result = await this.prisma.track.aggregate({
+      const result = await this.prisma.song.aggregate({
         _sum: {
           play_count: true,
         },
@@ -341,7 +341,7 @@ export class TrackRepository extends AbstractBaseRepository<
 
   async getAverageDuration(): Promise<number> {
     try {
-      const result = await this.prisma.track.aggregate({
+      const result = await this.prisma.song.aggregate({
         _avg: {
           duration_seconds: true,
         },
@@ -355,9 +355,9 @@ export class TrackRepository extends AbstractBaseRepository<
   }
 
   // Complex business logic operations
-  async readTrackWithFullDetails(id: string): Promise<TrackWithRelations | null> {
+  async readSongWithFullDetails(id: string): Promise<SongWithRelations | null> {
     try {
-      const track = await this.findUnique(
+      const song = await this.findUnique(
         { id },
         {
           include: {
@@ -370,12 +370,12 @@ export class TrackRepository extends AbstractBaseRepository<
                 },
               },
             },
-            track_artists: {
+            song_artists: {
               include: {
                 artist: true,
               },
             },
-            playlist_tracks: {
+            playlist_songs: {
               include: {
                 playlist: {
                   include: {
@@ -388,14 +388,14 @@ export class TrackRepository extends AbstractBaseRepository<
         }
       );
 
-      return track as TrackWithRelations | null;
+      return song as SongWithRelations | null;
     } catch (error) {
-      logger.error('Error fetching track with full details', { trackId: id, error });
+      logger.error('Error fetching song with full details', { songId: id, error });
       throw error;
     }
   }
 
-  async searchTracks(query: string, options?: RepositoryOptions): Promise<TrackModel[]> {
+  async searchSongs(query: string, options?: RepositoryOptions): Promise<SongModel[]> {
     return this.findMany({
       ...options,
       where: {
@@ -428,59 +428,59 @@ export class TrackRepository extends AbstractBaseRepository<
     });
   }
 
-  async readTracksByArtist(
+  async readSongsByArtist(
     artistId: string,
     options?: RepositoryOptions
-  ): Promise<TrackModel[]> {
+  ): Promise<SongModel[]> {
     try {
-      const result = await this.prisma.trackArtist.findMany({
+      const result = await this.prisma.songArtist.findMany({
         where: {
           artist_id: artistId,
         },
         include: {
-          track: true,
+          song: true,
         },
         orderBy: {
-          track: {
+          song: {
             play_count: 'desc',
           },
         },
         ...this.buildQueryOptions(options),
       });
 
-      return result.map((ta: any) => ta.track);
+      return result.map((ta: any) => ta.song);
     } catch (error) {
-      logger.error('Error fetching tracks by artist', { artistId, error });
+      logger.error('Error fetching songs by artist', { artistId, error });
       throw error;
     }
   }
 
-  async readSimilarTracks(
-    trackId: string,
+  async readSimilarSongs(
+    songId: string,
     limit: number = 10
-  ): Promise<TrackModel[]> {
-    const track = await this.readTrack(trackId);
-    if (!track) {
-      throw new NotFoundError('Track', trackId);
+  ): Promise<SongModel[]> {
+    const song = await this.readSong(songId);
+    if (!song) {
+      throw new NotFoundError('Song', songId);
     }
 
-    // Find tracks with similar genres, duration, and from same album
-    const similarDurationMin = track.duration_seconds * 0.8;
-    const similarDurationMax = track.duration_seconds * 1.2;
+    // Find songs with similar genres, duration, and from same album
+    const similarDurationMin = song.duration_seconds * 0.8;
+    const similarDurationMax = song.duration_seconds * 1.2;
 
     return this.findMany({
       where: {
         id: {
-          not: trackId,
+          not: songId,
         },
         OR: [
           {
             genres: {
-              hasSome: track.genres || [],
+              hasSome: song.genres || [],
             },
           },
           {
-            album_id: track.album_id,
+            album_id: song.album_id,
           },
           {
             duration_seconds: {
@@ -497,14 +497,14 @@ export class TrackRepository extends AbstractBaseRepository<
     });
   }
 
-  async readTrackHistory(
-    trackId: string,
+  async readSongHistory(
+    songId: string,
     options?: RepositoryOptions
   ): Promise<any[]> {
     try {
       return await this.prisma.listeningHistory.findMany({
         where: {
-          track_id: trackId,
+          song_id: songId,
         },
         include: {
           user: {
@@ -521,16 +521,16 @@ export class TrackRepository extends AbstractBaseRepository<
         ...this.buildQueryOptions(options),
       });
     } catch (error) {
-      logger.error('Error fetching track history', { trackId, error });
+      logger.error('Error fetching song history', { songId, error });
       throw error;
     }
   }
 
-  async readTrackPlaylistInclusions(trackId: string): Promise<any[]> {
+  async readSongPlaylistInclusions(songId: string): Promise<any[]> {
     try {
-      return await this.prisma.playlistTrack.findMany({
+      return await this.prisma.playlistSong.findMany({
         where: {
-          track_id: trackId,
+          song_id: songId,
         },
         include: {
           playlist: {
@@ -547,15 +547,15 @@ export class TrackRepository extends AbstractBaseRepository<
         },
       });
     } catch (error) {
-      logger.error('Error fetching track playlist inclusions', { trackId, error });
+      logger.error('Error fetching song playlist inclusions', { songId, error });
       throw error;
     }
   }
 
-  async updateTrackGenres(
+  async updateSongGenres(
     id: string,
     genres: string[]
-  ): Promise<TrackModel> {
+  ): Promise<SongModel> {
     if (genres.length === 0) {
       throw new ValidationError('At least one genre is required', 'genres');
     }
@@ -569,18 +569,18 @@ export class TrackRepository extends AbstractBaseRepository<
     );
   }
 
-  async addGenreToTrack(
+  async addGenreToSong(
     id: string,
     genre: string
-  ): Promise<TrackModel> {
-    const track = await this.readTrack(id);
-    if (!track) {
-      throw new NotFoundError('Track', id);
+  ): Promise<SongModel> {
+    const song = await this.readSong(id);
+    if (!song) {
+      throw new NotFoundError('Song', id);
     }
 
-    const currentGenres = track.genres || [];
+    const currentGenres = song.genres || [];
     if (currentGenres.includes(genre)) {
-      return track; // Genre already exists
+      return song; // Genre already exists
     }
 
     return this.update(
@@ -592,20 +592,20 @@ export class TrackRepository extends AbstractBaseRepository<
     );
   }
 
-  async removeGenreFromTrack(
+  async removeGenreFromSong(
     id: string,
     genre: string
-  ): Promise<TrackModel> {
-    const track = await this.readTrack(id);
-    if (!track) {
-      throw new NotFoundError('Track', id);
+  ): Promise<SongModel> {
+    const song = await this.readSong(id);
+    if (!song) {
+      throw new NotFoundError('Song', id);
     }
 
-    const currentGenres = track.genres || [];
+    const currentGenres = song.genres || [];
     const updatedGenres = currentGenres.filter(g => g !== genre);
 
     if (updatedGenres.length === 0) {
-      throw new ValidationError('Cannot remove last genre from track', 'genres');
+      throw new ValidationError('Cannot remove last genre from song', 'genres');
     }
 
     return this.update(
@@ -617,10 +617,10 @@ export class TrackRepository extends AbstractBaseRepository<
     );
   }
 
-  async readTopTracksByGenre(
+  async readTopSongsByGenre(
     genre: string,
     limit: number = 20
-  ): Promise<TrackModel[]> {
+  ): Promise<SongModel[]> {
     return this.findMany({
       where: {
         genres: {
@@ -634,10 +634,10 @@ export class TrackRepository extends AbstractBaseRepository<
     });
   }
 
-  async readTrendingTracks(
+  async readTrendingSongs(
     daysSince: number = 7,
     limit: number = 50
-  ): Promise<TrackModel[]> {
+  ): Promise<SongModel[]> {
     // This is a simplified trending algorithm
     // In a real system, you'd want to calculate trend based on play count growth
     const sinceDate = new Date();
@@ -657,10 +657,10 @@ export class TrackRepository extends AbstractBaseRepository<
     });
   }
 
-  async readRandomTracks(
+  async readRandomSongs(
     limit: number = 10,
-    filters?: Prisma.TrackWhereInput
-  ): Promise<TrackModel[]> {
+    filters?: Prisma.SongWhereInput
+  ): Promise<SongModel[]> {
     // PostgreSQL specific random selection
     try {
       const totalCount = await this.count({ where: filters });
@@ -677,54 +677,54 @@ export class TrackRepository extends AbstractBaseRepository<
         },
       });
     } catch (error) {
-      logger.error('Error fetching random tracks', { error });
+      logger.error('Error fetching random songs', { error });
       throw error;
     }
   }
 
-  async incrementTrackPlayCount(id: string): Promise<void> {
+  async incrementSongPlayCount(id: string): Promise<void> {
     try {
-      await this.updateTrackPlayCount(id, 1);
+      await this.updateSongPlayCount(id, 1);
     } catch (error) {
-      logger.error('Error incrementing track play count', { trackId: id, error });
+      logger.error('Error incrementing song play count', { songId: id, error });
       // Don't throw - play count updates shouldn't break playback
     }
   }
 
-  async getTrackStats(id: string): Promise<{
+  async getSongStats(id: string): Promise<{
     playCount: bigint;
     likeCount: number;
     playlistInclusions: number;
     lastPlayed?: Date;
   }> {
     try {
-      const track = await this.readTrack(id);
-      if (!track) {
-        throw new NotFoundError('Track', id);
+      const song = await this.readSong(id);
+      if (!song) {
+        throw new NotFoundError('Song', id);
       }
 
       const [playlistCount, lastPlayRecord] = await Promise.all([
-        this.prisma.playlistTrack.count({
-          where: { track_id: id },
+        this.prisma.playlistSong.count({
+          where: { song_id: id },
         }),
         this.prisma.listeningHistory.findFirst({
-          where: { track_id: id },
+          where: { song_id: id },
           orderBy: { played_at: 'desc' },
           select: { played_at: true },
         }),
       ]);
 
       return {
-        playCount: track.play_count,
-        likeCount: track.like_count,
+        playCount: song.play_count,
+        likeCount: song.like_count,
         playlistInclusions: playlistCount,
         lastPlayed: lastPlayRecord?.played_at,
       };
     } catch (error) {
-      logger.error('Error getting track stats', { trackId: id, error });
+      logger.error('Error getting song stats', { songId: id, error });
       throw error;
     }
   }
 }
 
-export const trackRepository = new TrackRepository();
+export const songRepository = new SongRepository();

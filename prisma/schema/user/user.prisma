@@ -21,7 +21,7 @@ model User {
   user_library         UserLibrary[]
   user_preferences     UserPreferences?
   offline_downloads    OfflineDownload[]
-  playlist_tracks_added PlaylistTrack[] @relation("AddedBy")
+  playlist_songs_added PlaylistSong[] @relation("AddedBy")
 
   @@map("users")
   @@index([email])

@@ -100,15 +100,15 @@ export class ValidationError extends RepositoryError {
 export type UserModel = Prisma.UserGetPayload<{}>;
 export type ArtistModel = Prisma.ArtistGetPayload<{}>;
 export type AlbumModel = Prisma.AlbumGetPayload<{}>;
-export type TrackModel = Prisma.TrackGetPayload<{}>;
+export type SongModel = Prisma.SongGetPayload<{}>;
 export type PlaylistModel = Prisma.PlaylistGetPayload<{}>;
 export type ListeningHistoryModel = Prisma.ListeningHistoryGetPayload<{}>;
 export type UserLikeModel = Prisma.UserLikeGetPayload<{}>;
 export type UserFollowModel = Prisma.UserFollowGetPayload<{}>;
 export type UserLibraryModel = Prisma.UserLibraryGetPayload<{}>;
-export type PlaylistTrackModel = Prisma.PlaylistTrackGetPayload<{}>;
+export type PlaylistSongModel = Prisma.PlaylistSongGetPayload<{}>;
 export type AlbumArtistModel = Prisma.AlbumArtistGetPayload<{}>;
-export type TrackArtistModel = Prisma.TrackArtistGetPayload<{}>;
+export type SongArtistModel = Prisma.SongArtistGetPayload<{}>;
 export type GenreModel = Prisma.GenreGetPayload<{}>;
 export type UserPreferencesModel = Prisma.UserPreferencesGetPayload<{}>;
 export type OfflineDownloadModel = Prisma.OfflineDownloadGetPayload<{}>;
@@ -130,9 +130,9 @@ export interface ArtistWithRelations extends Prisma.ArtistGetPayload<{
         album: true;
       };
     };
-    track_artists: {
+    song_artists: {
       include: {
-        track: true;
+        song: true;
       };
     };
   };
@@ -140,7 +140,7 @@ export interface ArtistWithRelations extends Prisma.ArtistGetPayload<{
 
 export interface AlbumWithRelations extends Prisma.AlbumGetPayload<{
   include: {
-    tracks: true;
+    songs: true;
     album_artists: {
       include: {
         artist: true;
@@ -149,10 +149,10 @@ export interface AlbumWithRelations extends Prisma.AlbumGetPayload<{
   };
 }> {}
 
-export interface TrackWithRelations extends Prisma.TrackGetPayload<{
+export interface SongWithRelations extends Prisma.SongGetPayload<{
   include: {
     album: true;
-    track_artists: {
+    song_artists: {
       include: {
         artist: true;
       };
@@ -163,11 +163,11 @@ export interface TrackWithRelations extends Prisma.TrackGetPayload<{
 export interface PlaylistWithRelations extends Prisma.PlaylistGetPayload<{
   include: {
     user: true;
-    playlist_tracks: {
+    playlist_songs: {
       include: {
-        track: {
+        song: {
           include: {
-            track_artists: {
+            song_artists: {
               include: {
                 artist: true;
               };

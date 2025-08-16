@@ -56,9 +56,9 @@ export class ArtistRepository extends AbstractBaseRepository<
               album: true,
             },
           },
-          track_artists: {
+          song_artists: {
             include: {
-              track: true,
+              song: true,
             },
           },
         },
@@ -291,9 +291,9 @@ export class ArtistRepository extends AbstractBaseRepository<
               include: {
                 album: {
                   include: {
-                    tracks: {
+                    songs: {
                       include: {
-                        track_artists: {
+                        song_artists: {
                           include: {
                             artist: true,
                           },
@@ -304,9 +304,9 @@ export class ArtistRepository extends AbstractBaseRepository<
                 },
               },
             },
-            track_artists: {
+            song_artists: {
               include: {
-                track: {
+                song: {
                   include: {
                     album: true,
                   },
@@ -378,22 +378,22 @@ export class ArtistRepository extends AbstractBaseRepository<
     });
   }
 
-  async readArtistTopTracks(
+  async readArtistTopSongs(
     artistId: string,
     limit: number = 10
   ): Promise<any[]> {
     try {
-      // This would need to join with tracks and order by play_count
-      const result = await this.prisma.trackArtist.findMany({
+      // This would need to join with songs and order by play_count
+      const result = await this.prisma.songArtist.findMany({
         where: {
           artist_id: artistId,
           role: 'primary',
         },
         include: {
-          track: {
+          song: {
             include: {
               album: true,
-              track_artists: {
+              song_artists: {
                 include: {
                   artist: true,
                 },
@@ -402,16 +402,16 @@ export class ArtistRepository extends AbstractBaseRepository<
           },
         },
         orderBy: {
-          track: {
+          song: {
             play_count: 'desc',
           },
         },
         take: limit,
       });
 
-      return result.map(ta => ta.track);
+      return result.map(ta => ta.song);
     } catch (error) {
-      logger.error('Error fetching artist top tracks', { artistId, error });
+      logger.error('Error fetching artist top songs', { artistId, error });
       throw error;
     }
   }
@@ -442,7 +442,7 @@ export class ArtistRepository extends AbstractBaseRepository<
         include: {
           album: {
             include: {
-              tracks: true,
+              songs: true,
             },
           },
         },

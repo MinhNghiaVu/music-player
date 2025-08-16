@@ -77,7 +77,7 @@ const Index = () => {
       {
         id: 'liked-songs',
         name: 'Liked Songs',
-        description: 'Your favorite tracks',
+        description: 'Your favorite songs',
         songs: [],
         createdAt: new Date(),
         isPublic: false
@@ -389,7 +389,7 @@ const Index = () => {
         <div className="space-y-6">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Liked Songs</h1>
-            <p className="text-muted-foreground mt-2">Your favorite tracks</p>
+            <p className="text-muted-foreground mt-2">Your favorite songs</p>
             <p className="text-muted-foreground mt-1">{likedSongsCollection?.songs.length || 0} songs</p>
           </div>
           

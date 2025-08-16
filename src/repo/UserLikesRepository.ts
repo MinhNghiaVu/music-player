@@ -74,7 +74,7 @@ export class UserLikesRepository extends AbstractBaseRepository<
     });
   }
 
-  async readLikedTracks(
+  async readLikedSongs(
     userId: string,
     options?: RepositoryOptions
   ): Promise<any[]> {
@@ -84,21 +84,21 @@ export class UserLikesRepository extends AbstractBaseRepository<
         where: {
           ...options?.where,
           user_id: userId,
-          likeable_type: 'track',
+          likeable_type: 'song',
         },
         orderBy: {
           created_at: 'desc',
         },
       });
 
-      // Get track details
-      const trackIds = result.map(like => like.likeable_id);
-      const tracks = await this.prisma.track.findMany({
+      // Get song details
+      const songIds = result.map(like => like.likeable_id);
+      const songs = await this.prisma.song.findMany({
         where: {
-          id: { in: trackIds },
+          id: { in: songIds },
         },
         include: {
-          track_artists: {
+          song_artists: {
             include: {
               artist: true,
             },
@@ -110,10 +110,10 @@ export class UserLikesRepository extends AbstractBaseRepository<
       // Combine with like data
       return result.map(like => ({
         like,
-        track: tracks.find(track => track.id === like.likeable_id),
+        song: songs.find(song => song.id === like.likeable_id),
       }));
     } catch (error) {
-      logger.error('Error fetching liked tracks', { userId, error });
+      logger.error('Error fetching liked songs', { userId, error });
       throw error;
     }
   }
@@ -147,7 +147,7 @@ export class UserLikesRepository extends AbstractBaseRepository<
               artist: true,
             },
           },
-          tracks: true,
+          songs: true,
         },
       });
 
@@ -313,7 +313,7 @@ export class UserLikesRepository extends AbstractBaseRepository<
   ): Promise<UserLikeModel> {
     try {
       // Validate likeable type
-      if (!['track', 'album', 'playlist', 'artist'].includes(likeableType)) {
+      if (!['song', 'album', 'playlist', 'artist'].includes(likeableType)) {
         throw new ValidationError('Invalid likeable type', 'likeable_type');
       }
 
@@ -337,9 +337,9 @@ export class UserLikesRepository extends AbstractBaseRepository<
         likeable_id: likeableId,
       });
 
-      // Update like count on the target item if it's a track
-      if (likeableType === 'track') {
-        await this.prisma.track.update({
+      // Update like count on the target item if it's a song
+      if (likeableType === 'song') {
+        await this.prisma.song.update({
           where: { id: likeableId },
           data: {
             like_count: { increment: 1 },
@@ -376,9 +376,9 @@ export class UserLikesRepository extends AbstractBaseRepository<
       // Delete like
       await this.delete({ id: like.id });
 
-      // Update like count on the target item if it's a track
-      if (likeableType === 'track') {
-        await this.prisma.track.update({
+      // Update like count on the target item if it's a song
+      if (likeableType === 'song') {
+        await this.prisma.song.update({
           where: { id: likeableId },
           data: {
             like_count: { decrement: 1 },
@@ -441,15 +441,15 @@ export class UserLikesRepository extends AbstractBaseRepository<
 
   async getUserLikeStats(userId: string): Promise<{
     totalLikes: number;
-    likedTracks: number;
+    likedSongs: number;
     likedAlbums: number;
     likedArtists: number;
     likedPlaylists: number;
   }> {
     try {
-      const [total, tracks, albums, artists, playlists] = await Promise.all([
+      const [total, songs, albums, artists, playlists] = await Promise.all([
         this.countUserLikesByUser(userId),
-        this.countUserLikesByType(userId, 'track'),
+        this.countUserLikesByType(userId, 'song'),
         this.countUserLikesByType(userId, 'album'),
         this.countUserLikesByType(userId, 'artist'),
         this.countUserLikesByType(userId, 'playlist'),
@@ -457,7 +457,7 @@ export class UserLikesRepository extends AbstractBaseRepository<
 
       return {
         totalLikes: total,
-        likedTracks: tracks,
+        likedSongs: songs,
         likedAlbums: albums,
         likedArtists: artists,
         likedPlaylists: playlists,

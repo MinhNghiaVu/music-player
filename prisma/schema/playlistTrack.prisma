@@ -1,19 +1,19 @@
-// Playlist tracks relationship (many to many)
-model PlaylistTrack {
+// Playlist songs relationship (many to many)
+model PlaylistSong {
   id          String   @id @default(uuid())
   playlist_id String
-  track_id    String
+  song_id    String
   position    Int
   added_by    String?
   added_at    DateTime @default(now())
 
   // Relations
   playlist Playlist @relation(fields: [playlist_id], references: [id], onDelete: Cascade)
-  track    Track    @relation(fields: [track_id], references: [id], onDelete: Cascade)
+  song    Song    @relation(fields: [song_id], references: [id], onDelete: Cascade)
   added_by_user User? @relation("AddedBy", fields: [added_by], references: [id], onDelete: SetNull)
 
   @@unique([playlist_id, position])
-  @@map("playlist_tracks")
+  @@map("playlist_songs")
   @@index([playlist_id])
-  @@index([track_id])
+  @@index([song_id])
 }

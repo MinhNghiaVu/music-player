@@ -74,7 +74,7 @@ export class UserLibraryRepository extends AbstractBaseRepository<
     });
   }
 
-  async readSavedTracks(
+  async readSavedSongs(
     userId: string,
     options?: RepositoryOptions
   ): Promise<any[]> {
@@ -84,21 +84,21 @@ export class UserLibraryRepository extends AbstractBaseRepository<
         where: {
           ...options?.where,
           user_id: userId,
-          item_type: 'track',
+          item_type: 'song',
         },
         orderBy: {
           added_at: 'desc',
         },
       });
 
-      // Get track details
-      const trackIds = result.map(item => item.item_id);
-      const tracks = await this.prisma.track.findMany({
+      // Get song details
+      const songIds = result.map(item => item.item_id);
+      const songs = await this.prisma.song.findMany({
         where: {
-          id: { in: trackIds },
+          id: { in: songIds },
         },
         include: {
-          track_artists: {
+          song_artists: {
             include: {
               artist: true,
             },
@@ -110,10 +110,10 @@ export class UserLibraryRepository extends AbstractBaseRepository<
       // Combine with library data
       return result.map(item => ({
         library: item,
-        track: tracks.find(track => track.id === item.item_id),
+        song: songs.find(song => song.id === item.item_id),
       }));
     } catch (error) {
-      logger.error('Error fetching saved tracks', { userId, error });
+      logger.error('Error fetching saved songs', { userId, error });
       throw error;
     }
   }
@@ -147,7 +147,7 @@ export class UserLibraryRepository extends AbstractBaseRepository<
               artist: true,
             },
           },
-          tracks: true,
+          songs: true,
         },
       });
 
@@ -304,7 +304,7 @@ export class UserLibraryRepository extends AbstractBaseRepository<
   ): Promise<UserLibraryModel> {
     try {
       // Validate item type
-      if (!['track', 'album', 'playlist', 'artist'].includes(itemType)) {
+      if (!['song', 'album', 'playlist', 'artist'].includes(itemType)) {
         throw new ValidationError('Invalid item type', 'item_type');
       }
 
@@ -326,8 +326,8 @@ export class UserLibraryRepository extends AbstractBaseRepository<
         user: { connect: { id: userId } },
         item_type: itemType,
         item_id: itemId,
-        ...(itemType === 'track' && {
-          track: { connect: { id: itemId } },
+        ...(itemType === 'song' && {
+          song: { connect: { id: itemId } },
         }),
       } as any);
 
@@ -415,15 +415,15 @@ export class UserLibraryRepository extends AbstractBaseRepository<
 
   async getUserLibraryStats(userId: string): Promise<{
     totalSaved: number;
-    savedTracks: number;
+    savedSongs: number;
     savedAlbums: number;
     savedArtists: number;
     savedPlaylists: number;
   }> {
     try {
-      const [total, tracks, albums, artists, playlists] = await Promise.all([
+      const [total, songs, albums, artists, playlists] = await Promise.all([
         this.countUserLibraryByUser(userId),
-        this.countUserLibraryByType(userId, 'track'),
+        this.countUserLibraryByType(userId, 'song'),
         this.countUserLibraryByType(userId, 'album'),
         this.countUserLibraryByType(userId, 'artist'),
         this.countUserLibraryByType(userId, 'playlist'),
@@ -431,7 +431,7 @@ export class UserLibraryRepository extends AbstractBaseRepository<
 
       return {
         totalSaved: total,
-        savedTracks: tracks,
+        savedSongs: songs,
         savedAlbums: albums,
         savedArtists: artists,
         savedPlaylists: playlists,
@@ -464,21 +464,21 @@ export class UserLibraryRepository extends AbstractBaseRepository<
   }
 
   async exportUserLibrary(userId: string): Promise<{
-    tracks: any[];
+    songs: any[];
     albums: any[];
     artists: any[];
     playlists: any[];
   }> {
     try {
-      const [tracks, albums, artists, playlists] = await Promise.all([
-        this.readSavedTracks(userId),
+      const [songs, albums, artists, playlists] = await Promise.all([
+        this.readSavedSongs(userId),
         this.readSavedAlbums(userId),
         this.readSavedArtists(userId),
         this.readSavedPlaylists(userId),
       ]);
 
       return {
-        tracks,
+        songs,
         albums,
         artists,
         playlists,

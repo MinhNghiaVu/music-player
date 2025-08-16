@@ -39,11 +39,11 @@ export class PlaylistRepository extends AbstractBaseRepository<
       {
         include: {
           user: true,
-          playlist_tracks: {
+          playlist_songs: {
             include: {
-              track: {
+              song: {
                 include: {
-                  track_artists: {
+                  song_artists: {
                     include: {
                       artist: true,
                     },
@@ -164,7 +164,7 @@ export class PlaylistRepository extends AbstractBaseRepository<
         is_public: true,
       },
       orderBy: {
-        total_tracks: 'desc',
+        total_songs: 'desc',
       },
       take: limit,
     });
@@ -222,12 +222,12 @@ export class PlaylistRepository extends AbstractBaseRepository<
   async updatePlaylistStats(
     id: string,
     stats: {
-      total_tracks?: number;
+      total_songs?: number;
       total_duration_seconds?: number;
     }
   ): Promise<PlaylistModel> {
-    if (stats.total_tracks !== undefined && stats.total_tracks < 0) {
-      throw new ValidationError('Total tracks cannot be negative', 'total_tracks');
+    if (stats.total_songs !== undefined && stats.total_songs < 0) {
+      throw new ValidationError('Total songs cannot be negative', 'total_songs');
     }
 
     if (stats.total_duration_seconds !== undefined && stats.total_duration_seconds < 0) {
@@ -266,7 +266,7 @@ export class PlaylistRepository extends AbstractBaseRepository<
     cutoffDate.setDate(cutoffDate.getDate() - olderThanDays);
 
     return this.deleteMany({
-      total_tracks: 0,
+      total_songs: 0,
       created_at: {
         lt: cutoffDate,
       },
@@ -327,9 +327,9 @@ export class PlaylistRepository extends AbstractBaseRepository<
                 profile_image_url: true,
               },
             },
-            playlist_tracks: {
+            playlist_songs: {
               include: {
-                track: {
+                song: {
                   include: {
                     album: {
                       select: {
@@ -338,7 +338,7 @@ export class PlaylistRepository extends AbstractBaseRepository<
                         cover_image_url: true,
                       },
                     },
-                    track_artists: {
+                    song_artists: {
                       include: {
                         artist: {
                           select: {
@@ -398,41 +398,41 @@ export class PlaylistRepository extends AbstractBaseRepository<
     });
   }
 
-  async addTrackToPlaylist(
+  async addSongToPlaylist(
     playlistId: string,
-    trackId: string,
+    songId: string,
     addedBy?: string
   ): Promise<any> {
     try {
-      // Get current track count to determine position
-      const currentTrackCount = await this.prisma.playlistTrack.count({
+      // Get current song count to determine position
+      const currentSongCount = await this.prisma.playlistSong.count({
         where: { playlist_id: playlistId },
       });
 
-      // Check if track already exists in playlist
-      const existingTrack = await this.prisma.playlistTrack.findFirst({
+      // Check if song already exists in playlist
+      const existingSong = await this.prisma.playlistSong.findFirst({
         where: {
           playlist_id: playlistId,
-          track_id: trackId,
+          song_id: songId,
         },
       });
 
-      if (existingTrack) {
-        throw new ValidationError('Track already exists in playlist', 'track_id');
+      if (existingSong) {
+        throw new ValidationError('Song already exists in playlist', 'song_id');
       }
 
-      // Add track to playlist
-      const playlistTrack = await this.prisma.playlistTrack.create({
+      // Add song to playlist
+      const playlistSong = await this.prisma.playlistSong.create({
         data: {
           playlist_id: playlistId,
-          track_id: trackId,
-          position: currentTrackCount + 1,
+          song_id: songId,
+          position: currentSongCount + 1,
           added_by: addedBy,
         },
         include: {
-          track: {
+          song: {
             include: {
-              track_artists: {
+              song_artists: {
                 include: {
                   artist: true,
                 },
@@ -445,39 +445,39 @@ export class PlaylistRepository extends AbstractBaseRepository<
       // Update playlist stats
       await this.syncPlaylistStats(playlistId);
 
-      return playlistTrack;
+      return playlistSong;
     } catch (error) {
-      logger.error('Error adding track to playlist', { playlistId, trackId, error });
+      logger.error('Error adding song to playlist', { playlistId, songId, error });
       throw error;
     }
   }
 
-  async removeTrackFromPlaylist(
+  async removeSongFromPlaylist(
     playlistId: string,
-    trackId: string
+    songId: string
   ): Promise<void> {
     try {
-      const playlistTrack = await this.prisma.playlistTrack.findFirst({
+      const playlistSong = await this.prisma.playlistSong.findFirst({
         where: {
           playlist_id: playlistId,
-          track_id: trackId,
+          song_id: songId,
         },
       });
 
-      if (!playlistTrack) {
-        throw new NotFoundError('Track in playlist', `${playlistId}:${trackId}`);
+      if (!playlistSong) {
+        throw new NotFoundError('Song in playlist', `${playlistId}:${songId}`);
       }
 
-      // Remove the track
-      await this.prisma.playlistTrack.delete({
-        where: { id: playlistTrack.id },
+      // Remove the song
+      await this.prisma.playlistSong.delete({
+        where: { id: playlistSong.id },
       });
 
-      // Reorder remaining tracks
-      await this.prisma.playlistTrack.updateMany({
+      // Reorder remaining songs
+      await this.prisma.playlistSong.updateMany({
         where: {
           playlist_id: playlistId,
-          position: { gt: playlistTrack.position },
+          position: { gt: playlistSong.position },
         },
         data: {
           position: { decrement: 1 },
@@ -487,18 +487,18 @@ export class PlaylistRepository extends AbstractBaseRepository<
       // Update playlist stats
       await this.syncPlaylistStats(playlistId);
     } catch (error) {
-      logger.error('Error removing track from playlist', { playlistId, trackId, error });
+      logger.error('Error removing song from playlist', { playlistId, songId, error });
       throw error;
     }
   }
 
-  async reorderPlaylistTracks(
+  async reorderPlaylistSongs(
     playlistId: string,
-    trackPositions: { trackId: string; position: number }[]
+    songPositions: { songId: string; position: number }[]
   ): Promise<void> {
     try {
       // Validate positions are sequential and start from 1
-      const positions = trackPositions.map(tp => tp.position).sort((a, b) => a - b);
+      const positions = songPositions.map(tp => tp.position).sort((a, b) => a - b);
       for (let i = 0; i < positions.length; i++) {
         if (positions[i] !== i + 1) {
           throw new ValidationError('Positions must be sequential starting from 1', 'positions');
@@ -507,28 +507,28 @@ export class PlaylistRepository extends AbstractBaseRepository<
 
       // Update positions in a transaction
       await this.prisma.$transaction(
-        trackPositions.map(({ trackId, position }) =>
-          this.prisma.playlistTrack.updateMany({
+        songPositions.map(({ songId, position }) =>
+          this.prisma.playlistSong.updateMany({
             where: {
               playlist_id: playlistId,
-              track_id: trackId,
+              song_id: songId,
             },
             data: { position },
           })
         )
       );
     } catch (error) {
-      logger.error('Error reordering playlist tracks', { playlistId, error });
+      logger.error('Error reordering playlist songs', { playlistId, error });
       throw error;
     }
   }
 
   async syncPlaylistStats(playlistId: string): Promise<PlaylistModel> {
     try {
-      const stats = await this.prisma.playlistTrack.findMany({
+      const stats = await this.prisma.playlistSong.findMany({
         where: { playlist_id: playlistId },
         include: {
-          track: {
+          song: {
             select: {
               duration_seconds: true,
             },
@@ -536,16 +536,16 @@ export class PlaylistRepository extends AbstractBaseRepository<
         },
       });
 
-      const totalTracks = stats.length;
+      const totalSongs = stats.length;
       const totalDuration = stats.reduce(
-        (sum, pt) => sum + pt.track.duration_seconds,
+        (sum, pt) => sum + pt.song.duration_seconds,
         0
       );
 
       return this.update(
         { id: playlistId },
         {
-          total_tracks: totalTracks,
+          total_songs: totalSongs,
           total_duration_seconds: totalDuration,
           updated_at: new Date(),
         }
@@ -578,12 +578,12 @@ export class PlaylistRepository extends AbstractBaseRepository<
         is_collaborative: false,
       });
 
-      // Copy tracks if original playlist has any
-      if (originalPlaylist.playlist_tracks && originalPlaylist.playlist_tracks.length > 0) {
-        await this.prisma.playlistTrack.createMany({
-          data: originalPlaylist.playlist_tracks.map((pt, index) => ({
+      // Copy songs if original playlist has any
+      if (originalPlaylist.playlist_songs && originalPlaylist.playlist_songs.length > 0) {
+        await this.prisma.playlistSong.createMany({
+          data: originalPlaylist.playlist_songs.map((pt, index) => ({
             playlist_id: newPlaylist.id,
-            track_id: pt.track_id,
+            song_id: pt.song_id,
             position: index + 1,
             added_by: newUserId,
           })),
@@ -602,10 +602,10 @@ export class PlaylistRepository extends AbstractBaseRepository<
 
   async getPlaylistDuration(playlistId: string): Promise<number> {
     try {
-      const result = await this.prisma.playlistTrack.findMany({
+      const result = await this.prisma.playlistSong.findMany({
         where: { playlist_id: playlistId },
         include: {
-          track: {
+          song: {
             select: {
               duration_seconds: true,
             },
@@ -613,22 +613,22 @@ export class PlaylistRepository extends AbstractBaseRepository<
         },
       });
 
-      return result.reduce((sum, pt) => sum + pt.track.duration_seconds, 0);
+      return result.reduce((sum, pt) => sum + pt.song.duration_seconds, 0);
     } catch (error) {
       logger.error('Error calculating playlist duration', { playlistId, error });
       throw error;
     }
   }
 
-  async getPlaylistTracks(
+  async getPlaylistSongs(
     playlistId: string,
     options?: RepositoryOptions
   ): Promise<any[]> {
     try {
-      return await this.prisma.playlistTrack.findMany({
+      return await this.prisma.playlistSong.findMany({
         where: { playlist_id: playlistId },
         include: {
-          track: {
+          song: {
             include: {
               album: {
                 select: {
@@ -637,7 +637,7 @@ export class PlaylistRepository extends AbstractBaseRepository<
                   cover_image_url: true,
                 },
               },
-              track_artists: {
+              song_artists: {
                 include: {
                   artist: {
                     select: {
@@ -662,26 +662,26 @@ export class PlaylistRepository extends AbstractBaseRepository<
         ...this.buildQueryOptions(options),
       });
     } catch (error) {
-      logger.error('Error fetching playlist tracks', { playlistId, error });
+      logger.error('Error fetching playlist songs', { playlistId, error });
       throw error;
     }
   }
 
   async shufflePlaylist(playlistId: string): Promise<void> {
     try {
-      const tracks = await this.prisma.playlistTrack.findMany({
+      const songs = await this.prisma.playlistSong.findMany({
         where: { playlist_id: playlistId },
         select: { id: true },
       });
 
-      // Shuffle the track IDs
-      const shuffledTracks = [...tracks].sort(() => Math.random() - 0.5);
+      // Shuffle the song IDs
+      const shuffledSongs = [...songs].sort(() => Math.random() - 0.5);
 
       // Update positions in transaction
       await this.prisma.$transaction(
-        shuffledTracks.map((track, index) =>
-          this.prisma.playlistTrack.update({
-            where: { id: track.id },
+        shuffledSongs.map((song, index) =>
+          this.prisma.playlistSong.update({
+            where: { id: song.id },
             data: { position: index + 1 },
           })
         )
@@ -692,10 +692,10 @@ export class PlaylistRepository extends AbstractBaseRepository<
     }
   }
 
-  async getPlaylistsByTrack(trackId: string): Promise<PlaylistModel[]> {
+  async getPlaylistsBySong(songId: string): Promise<PlaylistModel[]> {
     try {
-      const result = await this.prisma.playlistTrack.findMany({
-        where: { track_id: trackId },
+      const result = await this.prisma.playlistSong.findMany({
+        where: { song_id: songId },
         include: {
           playlist: {
             include: {
@@ -713,15 +713,15 @@ export class PlaylistRepository extends AbstractBaseRepository<
 
       return result.map((pt: any) => pt.playlist);
     } catch (error) {
-      logger.error('Error fetching playlists by track', { trackId, error });
+      logger.error('Error fetching playlists by song', { songId, error });
       throw error;
     }
   }
 
   async clearPlaylist(playlistId: string): Promise<PlaylistModel> {
     try {
-      // Remove all tracks
-      await this.prisma.playlistTrack.deleteMany({
+      // Remove all songs
+      await this.prisma.playlistSong.deleteMany({
         where: { playlist_id: playlistId },
       });
 
@@ -729,7 +729,7 @@ export class PlaylistRepository extends AbstractBaseRepository<
       return this.update(
         { id: playlistId },
         {
-          total_tracks: 0,
+          total_songs: 0,
           total_duration_seconds: 0,
           updated_at: new Date(),
         }

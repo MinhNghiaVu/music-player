@@ -61,7 +61,7 @@
     width: 8px;
   }
   
-  .scrollbar-custom::-webkit-scrollbar-track {
+  .scrollbar-custom::-webkit-scrollbar-song {
     @apply bg-muted;
   }
   

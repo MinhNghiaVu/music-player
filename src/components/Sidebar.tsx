@@ -46,7 +46,7 @@ const Sidebar = ({ collections, onCreateCollection, activeView, onViewChange }: 
 
         <div className="mt-8">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+            <h3 className="text-sm font-medium text-muted-foreground uppercase songing-wider">
               Playlists
             </h3>
             <CreatePlaylistDialog onCreatePlaylist={onCreateCollection} />

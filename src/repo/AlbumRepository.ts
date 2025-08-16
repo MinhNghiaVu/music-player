@@ -38,7 +38,7 @@ export class AlbumRepository extends AbstractBaseRepository<
       { id },
       {
         include: {
-          tracks: true,
+          songs: true,
           album_artists: {
             include: {
               artist: true,
@@ -230,12 +230,12 @@ export class AlbumRepository extends AbstractBaseRepository<
   async updateAlbumStats(
     id: string,
     stats: {
-      total_tracks?: number;
+      total_songs?: number;
       duration_seconds?: number;
     }
   ): Promise<AlbumModel> {
-    if (stats.total_tracks !== undefined && stats.total_tracks < 0) {
-      throw new ValidationError('Total tracks cannot be negative', 'total_tracks');
+    if (stats.total_songs !== undefined && stats.total_songs < 0) {
+      throw new ValidationError('Total songs cannot be negative', 'total_songs');
     }
 
     if (stats.duration_seconds !== undefined && stats.duration_seconds < 0) {
@@ -275,7 +275,7 @@ export class AlbumRepository extends AbstractBaseRepository<
       release_date: {
         lt: cutoffDate,
       },
-      total_tracks: 0, // Only delete empty albums
+      total_songs: 0, // Only delete empty albums
     });
   }
 
@@ -327,16 +327,16 @@ export class AlbumRepository extends AbstractBaseRepository<
         { id },
         {
           include: {
-            tracks: {
+            songs: {
               include: {
-                track_artists: {
+                song_artists: {
                   include: {
                     artist: true,
                   },
                 },
               },
               orderBy: {
-                track_number: 'asc',
+                song_number: 'asc',
               },
             },
             album_artists: {
@@ -449,14 +449,14 @@ export class AlbumRepository extends AbstractBaseRepository<
     });
   }
 
-  async readAlbumTracks(albumId: string): Promise<any[]> {
+  async readAlbumSongs(albumId: string): Promise<any[]> {
     try {
-      const tracks = await this.prisma.track.findMany({
+      const songs = await this.prisma.song.findMany({
         where: {
           album_id: albumId,
         },
         include: {
-          track_artists: {
+          song_artists: {
             include: {
               artist: true,
             },
@@ -464,20 +464,20 @@ export class AlbumRepository extends AbstractBaseRepository<
         },
         orderBy: [
           { disc_number: 'asc' },
-          { track_number: 'asc' },
+          { song_number: 'asc' },
         ],
       });
 
-      return tracks;
+      return songs;
     } catch (error) {
-      logger.error('Error fetching album tracks', { albumId, error });
+      logger.error('Error fetching album songs', { albumId, error });
       throw error;
     }
   }
 
   async calculateAlbumDuration(albumId: string): Promise<number> {
     try {
-      const result = await this.prisma.track.aggregate({
+      const result = await this.prisma.song.aggregate({
         where: {
           album_id: albumId,
         },
@@ -560,7 +560,7 @@ export class AlbumRepository extends AbstractBaseRepository<
 
   async syncAlbumStats(albumId: string): Promise<AlbumModel> {
     try {
-      const stats = await this.prisma.track.aggregate({
+      const stats = await this.prisma.song.aggregate({
         where: {
           album_id: albumId,
         },
@@ -575,7 +575,7 @@ export class AlbumRepository extends AbstractBaseRepository<
       return this.update(
         { id: albumId },
         {
-          total_tracks: stats._count.id,
+          total_songs: stats._count.id,
           duration_seconds: stats._sum.duration_seconds || 0,
           updated_at: new Date(),
         }

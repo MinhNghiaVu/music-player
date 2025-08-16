@@ -216,11 +216,11 @@ export class UserRepository extends AbstractBaseRepository<
           include: {
             playlists: {
               include: {
-                playlist_tracks: {
+                playlist_songs: {
                   include: {
-                    track: {
+                    song: {
                       include: {
-                        track_artists: {
+                        song_artists: {
                           include: {
                             artist: true,
                           },
@@ -234,9 +234,9 @@ export class UserRepository extends AbstractBaseRepository<
             user_preferences: true,
             user_library: {
               include: {
-                track: {
+                song: {
                   include: {
-                    track_artists: {
+                    song_artists: {
                       include: {
                         artist: true,
                       },
@@ -251,9 +251,9 @@ export class UserRepository extends AbstractBaseRepository<
               },
               take: 50,
               include: {
-                track: {
+                song: {
                   include: {
-                    track_artists: {
+                    song_artists: {
                       include: {
                         artist: true,
                       },

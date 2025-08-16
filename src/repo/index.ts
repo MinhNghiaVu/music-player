@@ -6,7 +6,7 @@ export * from './BaseRepository';
 export * from './UserRepository';
 export * from './ArtistRepository';
 export * from './AlbumRepository';
-export * from './TrackRepository';
+export * from './SongRepository';
 export * from './PlaylistRepository';
 
 // Relationship repositories
@@ -19,7 +19,7 @@ export * from './UserLibraryRepository';
 import { userRepository } from './UserRepository';
 import { artistRepository } from './ArtistRepository';
 import { albumRepository } from './AlbumRepository';
-import { trackRepository } from './TrackRepository';
+import { songRepository } from './SongRepository';
 import { playlistRepository } from './PlaylistRepository';
 import { listeningHistoryRepository } from './ListeningHistoryRepository';
 import { userLikesRepository } from './UserLikesRepository';
@@ -30,7 +30,7 @@ export {
   userRepository,
   artistRepository,
   albumRepository,
-  trackRepository,
+  songRepository,
   playlistRepository,
   listeningHistoryRepository,
   userLikesRepository,
@@ -43,7 +43,7 @@ export const repositories = {
   user: userRepository,
   artist: artistRepository,
   album: albumRepository,
-  track: trackRepository,
+  song: songRepository,
   playlist: playlistRepository,
   listeningHistory: listeningHistoryRepository,
   userLikes: userLikesRepository,

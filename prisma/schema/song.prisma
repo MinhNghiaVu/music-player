@@ -1,8 +1,8 @@
-model Track {
+model Song {
   id               String   @id @default(uuid())
   title            String   @db.VarChar(255)
   duration_seconds Int
-  track_number     Int?
+  song_number     Int?
   disc_number      Int      @default(1)
   album_id         String?
   audio_file_url   String
@@ -19,13 +19,13 @@ model Track {
 
   // Relations
   album             Album?             @relation(fields: [album_id], references: [id], onDelete: SetNull)
-  track_artists     TrackArtist[]
-  playlist_tracks   PlaylistTrack[]
+  song_artists     SongArtist[]
+  playlist_songs   PlaylistSong[]
   listening_history ListeningHistory[]
   user_library      UserLibrary[]
   offline_downloads OfflineDownload[]
 
-  @@map("tracks")
+  @@map("songs")
   @@index([title])
   @@index([album_id])
   @@index([play_count])

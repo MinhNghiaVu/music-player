@@ -5,7 +5,7 @@ model Album {
   cover_image_url  String?
   release_date     DateTime?  @db.Date
   album_type       String     @default("album") @db.VarChar(20)
-  total_tracks     Int        @default(0)
+  total_songs     Int        @default(0)
   duration_seconds Int        @default(0)
   genres           String[]
   record_label     String?    @db.VarChar(255)
@@ -14,7 +14,7 @@ model Album {
   updated_at       DateTime   @default(now()) @updatedAt
 
   // Relations
-  tracks           Track[]
+  songs           Song[]
   album_artists    AlbumArtist[]
 
   @@map("albums")

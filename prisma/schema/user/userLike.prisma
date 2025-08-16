@@ -1,4 +1,4 @@
-// User likes (tracks, albums, playlists, artists)
+// User likes (songs, albums, playlists, artists)
 model UserLike {
   id            String   @id @default(uuid())
   user_id       String

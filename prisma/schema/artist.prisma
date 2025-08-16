@@ -13,7 +13,7 @@ model Artist {
 
   // Relations
   album_artists     AlbumArtist[]
-  track_artists     TrackArtist[]
+  song_artists      SongArtist[]
   user_follows      UserFollow[]
 
   @@map("artists")

@@ -3,8 +3,6 @@ import { AbstractBaseRepository } from './BaseRepository';
 import { 
   ListeningHistoryModel,
   RepositoryOptions,
-  NotFoundError,
-  ValidationError
 } from './types';
 import { logger } from '../utils/logger';
 
@@ -56,15 +54,15 @@ export class ListeningHistoryRepository extends AbstractBaseRepository<
     });
   }
 
-  async readTrackListeningHistory(
-    trackId: string,
+  async readSongListeningHistory(
+    songId: string,
     options?: RepositoryOptions
   ): Promise<ListeningHistoryModel[]> {
     return this.findMany({
       ...options,
       where: {
         ...options?.where,
-        track_id: trackId,
+        song_id: songId,
       },
       orderBy: {
         played_at: 'desc',
@@ -85,9 +83,9 @@ export class ListeningHistoryRepository extends AbstractBaseRepository<
       },
       take: limit,
       include: {
-        track: {
+        song: {
           include: {
-            track_artists: {
+            song_artists: {
               include: {
                 artist: true,
               },
@@ -236,25 +234,25 @@ export class ListeningHistoryRepository extends AbstractBaseRepository<
     });
   }
 
-  async countTrackPlays(trackId: string): Promise<number> {
+  async countSongPlays(songId: string): Promise<number> {
     return this.count({
       where: {
-        track_id: trackId,
+        song_id: songId,
       },
     });
   }
 
-  async countCompletedPlays(trackId: string): Promise<number> {
+  async countCompletedPlays(songId: string): Promise<number> {
     return this.count({
       where: {
-        track_id: trackId,
+        song_id: songId,
         completed: true,
       },
     });
   }
 
   // Complex business logic operations
-  async getUserTopTracks(
+  async getUserTopSongs(
     userId: string,
     limit: number = 20,
     daysSince?: number
@@ -272,27 +270,27 @@ export class ListeningHistoryRepository extends AbstractBaseRepository<
       }
 
       const result = await this.prisma.listeningHistory.groupBy({
-        by: ['track_id'],
+        by: ['song_id'],
         where: whereClause,
         _count: {
-          track_id: true,
+          song_id: true,
         },
         orderBy: {
           _count: {
-            track_id: 'desc',
+            song_id: 'desc',
           },
         },
         take: limit,
       });
 
-      // Get track details
-      const trackIds = result.map(r => r.track_id);
-      const tracks = await this.prisma.track.findMany({
+      // Get song details
+      const songIds = result.map(r => r.song_id);
+      const songs = await this.prisma.song.findMany({
         where: {
-          id: { in: trackIds },
+          id: { in: songIds },
         },
         include: {
-          track_artists: {
+          song_artists: {
             include: {
               artist: true,
             },
@@ -303,11 +301,11 @@ export class ListeningHistoryRepository extends AbstractBaseRepository<
 
       // Combine results
       return result.map(r => ({
-        track: tracks.find(t => t.id === r.track_id),
-        playCount: r._count.track_id,
+        song: songs.find(t => t.id === r.song_id),
+        playCount: r._count.song_id,
       }));
     } catch (error) {
-      logger.error('Error getting user top tracks', { userId, error });
+      logger.error('Error getting user top songs', { userId, error });
       throw error;
     }
   }
@@ -329,14 +327,14 @@ export class ListeningHistoryRepository extends AbstractBaseRepository<
         whereClause.played_at = { gte: sinceDate };
       }
 
-      // This is a complex query that requires joining through tracks to artists
+      // This is a complex query that requires joining through songs to artists
       const result = await this.prisma.$queryRaw`
         SELECT 
           ta.artist_id,
           COUNT(*) as play_count
         FROM listening_history lh
-        JOIN tracks t ON lh.track_id = t.id
-        JOIN track_artists ta ON t.id = ta.track_id AND ta.role = 'primary'
+        JOIN songs t ON lh.song_id = t.id
+        JOIN song_artists ta ON t.id = ta.song_id AND ta.role = 'primary'
         WHERE lh.user_id = ${userId}
           AND lh.completed = true
           ${daysSince ? Prisma.sql`AND lh.played_at >= ${new Date(Date.now() - daysSince * 24 * 60 * 60 * 1000)}` : Prisma.empty}
@@ -372,7 +370,7 @@ export class ListeningHistoryRepository extends AbstractBaseRepository<
     totalPlayTime: number;
     averagePlayTime: number;
     completionRate: number;
-    uniqueTracks: number;
+    uniqueSongs: number;
     uniqueArtists: number;
   }> {
     try {
@@ -386,7 +384,7 @@ export class ListeningHistoryRepository extends AbstractBaseRepository<
         whereClause.played_at = { gte: sinceDate };
       }
 
-      const [stats, uniqueTracks, uniqueArtists] = await Promise.all([
+      const [stats, uniqueSongs, uniqueArtists] = await Promise.all([
         this.prisma.listeningHistory.aggregate({
           where: whereClause,
           _count: {
@@ -401,14 +399,14 @@ export class ListeningHistoryRepository extends AbstractBaseRepository<
         }),
         this.prisma.listeningHistory.findMany({
           where: whereClause,
-          distinct: ['track_id'],
-          select: { track_id: true },
+          distinct: ['song_id'],
+          select: { song_id: true },
         }),
         this.prisma.$queryRaw`
           SELECT COUNT(DISTINCT ta.artist_id) as count
           FROM listening_history lh
-          JOIN tracks t ON lh.track_id = t.id
-          JOIN track_artists ta ON t.id = ta.track_id AND ta.role = 'primary'
+          JOIN songs t ON lh.song_id = t.id
+          JOIN song_artists ta ON t.id = ta.song_id AND ta.role = 'primary'
           WHERE lh.user_id = ${userId}
             ${daysSince ? Prisma.sql`AND lh.played_at >= ${new Date(Date.now() - daysSince * 24 * 60 * 60 * 1000)}` : Prisma.empty}
         `,
@@ -426,7 +424,7 @@ export class ListeningHistoryRepository extends AbstractBaseRepository<
         totalPlayTime: stats._sum.play_duration_seconds || 0,
         averagePlayTime: stats._avg.play_duration_seconds || 0,
         completionRate: stats._count.id > 0 ? (completedCount / stats._count.id) * 100 : 0,
-        uniqueTracks: uniqueTracks.length,
+        uniqueSongs: uniqueSongs.length,
         uniqueArtists: Number((uniqueArtists as any[])[0]?.count || 0),
       };
     } catch (error) {
@@ -437,7 +435,7 @@ export class ListeningHistoryRepository extends AbstractBaseRepository<
 
   async recordPlay(
     userId: string,
-    trackId: string,
+    songId: string,
     playData: {
       play_duration_seconds?: number;
       completed?: boolean;
@@ -449,11 +447,11 @@ export class ListeningHistoryRepository extends AbstractBaseRepository<
     try {
       return await this.create({
         user: { connect: { id: userId } },
-        track: { connect: { id: trackId } },
+        song: { connect: { id: songId } },
         ...playData,
       });
     } catch (error) {
-      logger.error('Error recording play', { userId, trackId, error });
+      logger.error('Error recording play', { userId, songId, error });
       throw error;
     }
   }
