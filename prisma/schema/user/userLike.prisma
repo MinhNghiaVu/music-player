@@ -1,10 +1,10 @@
 // User likes (tracks, albums, playlists, artists)
 model UserLike {
-  id           String   @id @default(uuid())
-  user_id      String
-  likeable_type String  @db.VarChar(20)
-  likeable_id  String
-  created_at   DateTime @default(now())
+  id            String   @id @default(uuid())
+  user_id       String
+  likeable_type String   @db.VarChar(20)
+  likeable_id   String
+  created_at    DateTime @default(now())
 
   // Relations
   user User @relation(fields: [user_id], references: [id], onDelete: Cascade)

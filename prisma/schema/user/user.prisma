@@ -16,11 +16,11 @@ model User {
   // Relations
   playlists            Playlist[]
   listening_history    ListeningHistory[]
-  user_likes          UserLike[]
-  user_follows        UserFollow[]
-  user_library        UserLibrary[]
-  user_preferences    UserPreferences?
-  offline_downloads   OfflineDownload[]
+  user_likes           UserLike[]
+  user_follows         UserFollow[]
+  user_library         UserLibrary[]
+  user_preferences     UserPreferences?
+  offline_downloads    OfflineDownload[]
   playlist_tracks_added PlaylistTrack[] @relation("AddedBy")
 
   @@map("users")
