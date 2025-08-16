@@ -1,17 +1,17 @@
-// User follows (artists, other users)
-model UserFollow {
-  id              String   @id @default(uuid())
-  follower_id     String
-  followable_type String   @db.VarChar(20)
-  followable_id   String
-  created_at      DateTime @default(now())
-
-  // Relations
-  follower User    @relation(fields: [follower_id], references: [id], onDelete: Cascade)
-  artist   Artist? @relation(fields: [followable_id], references: [id], onDelete: Cascade)
-
-  @@unique([follower_id, followable_type, followable_id])
-  @@map("user_follows")
-  @@index([follower_id])
-  @@index([followable_type, followable_id])
-}
+//// User follows (artists, other users)
+//model UserFollow {
+//  id              String   @id @default(uuid())
+//  follower_id     String
+//  followable_type String   @db.VarChar(20)
+//  followable_id   String
+//  created_at      DateTime @default(now())
+//
+//  // Relations
+//  follower User    @relation(fields: [follower_id], references: [id], onDelete: Cascade)
+//  artist   Artist? @relation(fields: [followable_id], references: [id], onDelete: Cascade)
+//
+//  @@unique([follower_id, followable_type, followable_id])
+//  @@map("user_follows")
+//  @@index([follower_id])
+//  @@index([followable_type, followable_id])
+//}

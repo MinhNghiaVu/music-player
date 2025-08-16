@@ -1,20 +1,20 @@
-// Offline downloads for mobile apps
-model OfflineDownload {
-  id               String    @id @default(uuid())
-  user_id          String
-  song_id         String
-  download_quality String    @default("normal") @db.VarChar(20)
-  downloaded_at    DateTime  @default(now())
-  expires_at       DateTime?
-  file_size_bytes  BigInt?
-
-  // Relations
-  user  User  @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  song Song @relation(fields: [song_id], references: [id], onDelete: Cascade)
-
-  @@unique([user_id, song_id])
-  @@map("offline_downloads")
-  @@index([user_id])
-  @@index([song_id])
-  @@index([expires_at])
-}
+//// Offline downloads for mobile apps
+//model OfflineDownload {
+//  id               String    @id @default(uuid())
+//  user_id          String
+//  song_id         String
+//  download_quality String    @default("normal") @db.VarChar(20)
+//  downloaded_at    DateTime  @default(now())
+//  expires_at       DateTime?
+//  file_size_bytes  BigInt?
+//
+//  // Relations
+//  user  User  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+//  song Song @relation(fields: [song_id], references: [id], onDelete: Cascade)
+//
+//  @@unique([user_id, song_id])
+//  @@map("offline_downloads")
+//  @@index([user_id])
+//  @@index([song_id])
+//  @@index([expires_at])
+//}

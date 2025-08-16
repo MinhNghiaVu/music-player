@@ -1,21 +1,21 @@
-// User listening history
-model ListeningHistory {
-  id                   String   @id @default(uuid())
-  user_id              String
-  song_id             String
-  played_at            DateTime @default(now())
-  play_duration_seconds Int?
-  completed            Boolean  @default(false)
-  device_type          String?  @db.VarChar(50)
-  source               String?  @db.VarChar(50)
-  source_id            String?
-
-  // Relations
-  user  User  @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  song Song @relation(fields: [song_id], references: [id], onDelete: Cascade)
-
-  @@map("listening_history")
-  @@index([user_id])
-  @@index([song_id])
-  @@index([played_at])
-}
+//// User listening history
+//model ListeningHistory {
+//  id                   String   @id @default(uuid())
+//  user_id              String
+//  song_id             String
+//  played_at            DateTime @default(now())
+//  play_duration_seconds Int?
+//  completed            Boolean  @default(false)
+//  device_type          String?  @db.VarChar(50)
+//  source               String?  @db.VarChar(50)
+//  source_id            String?
+//
+//  // Relations
+//  user  User  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+//  song Song @relation(fields: [song_id], references: [id], onDelete: Cascade)
+//
+//  @@map("listening_history")
+//  @@index([user_id])
+//  @@index([song_id])
+//  @@index([played_at])
+//}

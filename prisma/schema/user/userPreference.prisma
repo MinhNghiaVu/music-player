@@ -1,19 +1,19 @@
-// User preferences and settings
-model UserPreferences {
-  id                        String   @id @default(uuid())
-  user_id                   String   @unique
-  audio_quality             String   @default("high") @db.VarChar(20)
-  autoplay_enabled          Boolean  @default(true)
-  crossfade_duration        Int      @default(0)
-  explicit_content_filter   Boolean  @default(false)
-  social_features_enabled   Boolean  @default(true)
-  notifications_enabled     Boolean  @default(true)
-  offline_downloads_enabled Boolean  @default(false)
-  created_at                DateTime @default(now())
-  updated_at                DateTime @default(now()) @updatedAt
-
-  // Relations
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@map("user_preferences")
-}
+//// User preferences and settings
+//model UserPreferences {
+//  id                        String   @id @default(uuid())
+//  user_id                   String   @unique
+//  audio_quality             String   @default("high") @db.VarChar(20)
+//  autoplay_enabled          Boolean  @default(true)
+//  crossfade_duration        Int      @default(0)
+//  explicit_content_filter   Boolean  @default(false)
+//  social_features_enabled   Boolean  @default(true)
+//  notifications_enabled     Boolean  @default(true)
+//  offline_downloads_enabled Boolean  @default(false)
+//  created_at                DateTime @default(now())
+//  updated_at                DateTime @default(now()) @updatedAt
+//
+//  // Relations
+//  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+//
+//  @@map("user_preferences")
+//}

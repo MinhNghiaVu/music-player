@@ -1,23 +1,23 @@
-model Artist {
-  id                String   @id @default(uuid())
-  name              String   @db.VarChar(255)
-  bio               String?
-  profile_image_url String?
-  banner_image_url  String?
-  verified          Boolean  @default(false)
-  monthly_listeners Int      @default(0)
-  country_code      String?  @db.Char(2)
-  genres            String[]
-  created_at        DateTime @default(now())
-  updated_at        DateTime @default(now()) @updatedAt
-
-  // Relations
-  album_artists     AlbumArtist[]
-  song_artists      SongArtist[]
-  user_follows      UserFollow[]
-
-  @@map("artists")
-  @@index([name])
-  @@index([verified])
-  @@index([monthly_listeners])
-}
+//model Artist {
+//  id                String   @id @default(uuid())
+//  name              String   @db.VarChar(255)
+//  bio               String?
+//  profile_image_url String?
+//  banner_image_url  String?
+//  verified          Boolean  @default(false)
+//  monthly_listeners Int      @default(0)
+//  country_code      String?  @db.Char(2)
+//  genres            String[]
+//  created_at        DateTime @default(now())
+//  updated_at        DateTime @default(now()) @updatedAt
+//
+//  // Relations
+//  album_artists     AlbumArtist[]
+//  song_artists      SongArtist[]
+//  user_follows      UserFollow[]
+//
+//  @@map("artists")
+//  @@index([name])
+//  @@index([verified])
+//  @@index([monthly_listeners])
+//}

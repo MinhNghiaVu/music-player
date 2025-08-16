@@ -1,24 +1,24 @@
-model Album {
-  id               String     @id @default(uuid())
-  title            String     @db.VarChar(255)
-  description      String?
-  cover_image_url  String?
-  release_date     DateTime?  @db.Date
-  album_type       String     @default("album") @db.VarChar(20)
-  total_songs     Int        @default(0)
-  duration_seconds Int        @default(0)
-  genres           String[]
-  record_label     String?    @db.VarChar(255)
-  copyright_info   String?
-  created_at       DateTime   @default(now())
-  updated_at       DateTime   @default(now()) @updatedAt
-
-  // Relations
-  songs           Song[]
-  album_artists    AlbumArtist[]
-
-  @@map("albums")
-  @@index([title])
-  @@index([release_date])
-  @@index([album_type])
-}
+//model Album {
+//  id               String     @id @default(uuid())
+//  title            String     @db.VarChar(255)
+//  description      String?
+//  cover_image_url  String?
+//  release_date     DateTime?  @db.Date
+//  album_type       String     @default("album") @db.VarChar(20)
+//  total_songs      Int        @default(0)
+//  duration_seconds Int        @default(0)
+//  genres           String[]
+//  record_label     String?    @db.VarChar(255)
+//  copyright_info   String?
+//  created_at       DateTime   @default(now())
+//  updated_at       DateTime   @default(now()) @updatedAt
+//
+//  // Relations
+//  songs           Song[]
+//  album_artists    AlbumArtist[]
+//
+//  @@map("albums")
+//  @@index([title])
+//  @@index([release_date])
+//  @@index([album_type])
+//}

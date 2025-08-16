@@ -1,13 +1,13 @@
-// Search queries for analytics
-model SearchQuery {
-  id            String   @id @default(uuid())
-  user_id       String?
-  query_text    String   @db.VarChar(500)
-  result_count  Int      @default(0)
-  clicked_result Boolean @default(false)
-  searched_at   DateTime @default(now())
-
-  @@map("search_queries")
-  @@index([user_id])
-  @@index([searched_at])
-}
+//// Search queries for analytics
+//model SearchQuery {
+//  id            String   @id @default(uuid())
+//  user_id       String?
+//  query_text    String   @db.VarChar(500)
+//  result_count  Int      @default(0)
+//  clicked_result Boolean @default(false)
+//  searched_at   DateTime @default(now())
+//
+//  @@map("search_queries")
+//  @@index([user_id])
+//  @@index([searched_at])
+//}

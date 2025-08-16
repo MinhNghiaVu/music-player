@@ -1,16 +1,16 @@
-// Genres (normalized table)
-model Genre {
-  id               String   @id @default(uuid())
-  name             String   @unique @db.VarChar(100)
-  description      String?
-  parent_genre_id  String?
-  created_at       DateTime @default(now())
-
-  // Self-relation for parent/child genres
-  parent_genre Genre?  @relation("GenreHierarchy", fields: [parent_genre_id], references: [id], onDelete: SetNull)
-  sub_genres   Genre[] @relation("GenreHierarchy")
-
-  @@map("genres")
-  @@index([name])
-  @@index([parent_genre_id])
-}
+//// Genres (normalized table)
+//model Genre {
+//  id               String   @id @default(uuid())
+//  name             String   @unique @db.VarChar(100)
+//  description      String?
+//  parent_genre_id  String?
+//  created_at       DateTime @default(now())
+//
+//  // Self-relation for parent/child genres
+//  parent_genre Genre?  @relation("GenreHierarchy", fields: [parent_genre_id], references: [id], onDelete: SetNull)
+//  sub_genres   Genre[] @relation("GenreHierarchy")
+//
+//  @@map("genres")
+//  @@index([name])
+//  @@index([parent_genre_id])
+//}
