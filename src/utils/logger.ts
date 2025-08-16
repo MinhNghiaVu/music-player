@@ -26,13 +26,10 @@ class Logger {
       ...(data && { data })
     };
 
-    // In development, log to console
     if (process.env.NODE_ENV !== 'production') {
       console.log(JSON.stringify(logEntry, null, 2));
     }
 
-    // In production, you might want to send to a logging service
-    // like Winston, Pino, or a cloud service
   }
 
   info(message: string, data?: LogData): void {

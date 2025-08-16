@@ -22,12 +22,14 @@ export abstract class AbstractBaseRepository<
   protected model: any;
   protected modelName: string;
 
+  // Constructor to initialise everything
   constructor(modelName: string) {
     this.prisma = prisma;
     this.modelName = modelName;
     this.model = (this.prisma as any)[modelName];
   }
 
+  // CREATE: Create a new record of class T
   async create(data: CreateInput): Promise<T> {
     try {
       logger.info(`Creating ${this.modelName}`, { data });
@@ -40,6 +42,7 @@ export abstract class AbstractBaseRepository<
     }
   }
 
+  // Batch Create - might not support some items such as songs?
   async createMany(data: CreateInput[]): Promise<Prisma.BatchPayload> {
     try {
       logger.info(`Creating multiple ${this.modelName}`, { count: data.length });
@@ -200,6 +203,7 @@ export abstract class AbstractBaseRepository<
 
     const queryOptions: any = {};
 
+    // Apply options to query
     if (options.where) queryOptions.where = options.where;
     if (options.include) queryOptions.include = options.include;
     if (options.select) queryOptions.select = options.select;
@@ -217,6 +221,7 @@ export abstract class AbstractBaseRepository<
       meta: error.meta
     });
 
+    // Handle specific Prisma errors
     if (this.isPrismaUniqueConstraintError(error)) {
       const field = error.meta?.target?.[0] || 'field';
       throw new DuplicateError(this.modelName, field, 'unknown');
