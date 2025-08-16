@@ -291,10 +291,6 @@ export class UserFollowsRepository extends AbstractBaseRepository<
       const follow = await this.create({
         follower: { connect: { id: followerId } },
         followable_type: followableType,
-        followable_id: followableId,
-        ...(followableType === 'artist' && {
-          artist: { connect: { id: followableId } },
-        }),
       });
 
       return follow;

@@ -500,7 +500,7 @@ export class ListeningHistoryRepository extends AbstractBaseRepository<
       const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
       if (sortedDates[0] === today || sortedDates[0] === yesterday) {
-        let checkDate = new Date();
+        const checkDate = new Date();
         let streak = 0;
 
         for (let i = 0; i < sortedDates.length; i++) {
