@@ -45,7 +45,7 @@ export const searchAlbums = async (query: string): Promise<Album[]> => {
       ]
     },
     orderBy: { release_date: 'desc' },
-    take: 20 // Limit for MVP
+    take: 20
   });
 };
 

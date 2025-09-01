@@ -1,512 +1,118 @@
-import { Prisma } from '@prisma/client';
-import { AbstractBaseRepository } from './BaseRepository';
-import { 
-  UserLikeModel,
-  RepositoryOptions,
-  NotFoundError,
-  ValidationError
-} from './types';
-import { logger } from '../utils/logger';
+import { prisma } from '../database/client';
+import type { UserLike, Prisma } from '@prisma/client';
 
-export class UserLikesRepository extends AbstractBaseRepository<
-  UserLikeModel,
-  Prisma.UserLikeCreateInput,
-  Prisma.UserLikeUpdateInput,
-  Prisma.UserLikeWhereUniqueInput
-> {
-  constructor() {
-    super('userLike');
-  }
+// ========== CREATE ==========
+export const createUserLike = async (data: Prisma.UserLikeCreateInput): Promise<UserLike> => {
+  return prisma.userLike.create({ data });
+};
 
-  // Create operations
-  async createUserLike(data: Prisma.UserLikeCreateInput): Promise<UserLikeModel> {
-    return this.create(data);
-  }
-
-  async createManyUserLikes(data: Prisma.UserLikeCreateInput[]): Promise<Prisma.BatchPayload> {
-    return this.createMany(data);
-  }
-
-  // Read operations
-  async readUserLike(id: string, options?: RepositoryOptions): Promise<UserLikeModel | null> {
-    return this.findUnique({ id }, options);
-  }
-
-  async readUserLikes(options?: RepositoryOptions): Promise<UserLikeModel[]> {
-    return this.findMany(options);
-  }
-
-  async readUserLikesPaginated(options?: RepositoryOptions) {
-    return this.findManyPaginated(options);
-  }
-
-  async readUserLikesByUser(
-    userId: string,
-    options?: RepositoryOptions
-  ): Promise<UserLikeModel[]> {
-    return this.findMany({
-      ...options,
-      where: {
-        ...options?.where,
-        user_id: userId,
-      },
-      orderBy: {
-        created_at: 'desc',
-      },
-    });
-  }
-
-  async readUserLikesByType(
-    userId: string,
-    likeableType: string,
-    options?: RepositoryOptions
-  ): Promise<UserLikeModel[]> {
-    return this.findMany({
-      ...options,
-      where: {
-        ...options?.where,
-        user_id: userId,
-        likeable_type: likeableType,
-      },
-      orderBy: {
-        created_at: 'desc',
-      },
-    });
-  }
-
-  async readLikedSongs(
-    userId: string,
-    options?: RepositoryOptions
-  ): Promise<any[]> {
-    try {
-      const result = await this.findMany({
-        ...options,
-        where: {
-          ...options?.where,
-          user_id: userId,
-          likeable_type: 'song',
-        },
-        orderBy: {
-          created_at: 'desc',
-        },
-      });
-
-      // Get song details
-      const songIds = result.map(like => like.likeable_id);
-      const songs = await this.prisma.song.findMany({
-        where: {
-          id: { in: songIds },
-        },
-        include: {
-          song_artists: {
-            include: {
-              artist: true,
-            },
-          },
-          album: true,
-        },
-      });
-
-      // Combine with like data
-      return result.map(like => ({
-        like,
-        song: songs.find(song => song.id === like.likeable_id),
-      }));
-    } catch (error) {
-      logger.error('Error fetching liked songs', { userId, error });
-      throw error;
+export const likeSong = async (userId: string, songId: string): Promise<UserLike> => {
+  return prisma.userLike.create({
+    data: {
+      user: { connect: { id: userId } },
+      likeable_type: 'song',
+      likeable_id: songId
     }
-  }
+  });
+};
 
-  async readLikedAlbums(
-    userId: string,
-    options?: RepositoryOptions
-  ): Promise<any[]> {
-    try {
-      const result = await this.findMany({
-        ...options,
-        where: {
-          ...options?.where,
-          user_id: userId,
-          likeable_type: 'album',
-        },
-        orderBy: {
-          created_at: 'desc',
-        },
-      });
-
-      // Get album details
-      const albumIds = result.map(like => like.likeable_id);
-      const albums = await this.prisma.album.findMany({
-        where: {
-          id: { in: albumIds },
-        },
-        include: {
-          album_artists: {
-            include: {
-              artist: true,
-            },
-          },
-          songs: true,
-        },
-      });
-
-      // Combine with like data
-      return result.map(like => ({
-        like,
-        album: albums.find(album => album.id === like.likeable_id),
-      }));
-    } catch (error) {
-      logger.error('Error fetching liked albums', { userId, error });
-      throw error;
+export const likeAlbum = async (userId: string, albumId: string): Promise<UserLike> => {
+  return prisma.userLike.create({
+    data: {
+      user: { connect: { id: userId } },
+      likeable_type: 'album',
+      likeable_id: albumId
     }
-  }
+  });
+};
 
-  async readLikedArtists(
-    userId: string,
-    options?: RepositoryOptions
-  ): Promise<any[]> {
-    try {
-      const result = await this.findMany({
-        ...options,
-        where: {
-          ...options?.where,
-          user_id: userId,
-          likeable_type: 'artist',
-        },
-        orderBy: {
-          created_at: 'desc',
-        },
-      });
-
-      // Get artist details
-      const artistIds = result.map(like => like.likeable_id);
-      const artists = await this.prisma.artist.findMany({
-        where: {
-          id: { in: artistIds },
-        },
-      });
-
-      // Combine with like data
-      return result.map(like => ({
-        like,
-        artist: artists.find(artist => artist.id === like.likeable_id),
-      }));
-    } catch (error) {
-      logger.error('Error fetching liked artists', { userId, error });
-      throw error;
+export const likeArtist = async (userId: string, artistId: string): Promise<UserLike> => {
+  return prisma.userLike.create({
+    data: {
+      user: { connect: { id: userId } },
+      likeable_type: 'artist',
+      likeable_id: artistId
     }
-  }
+  });
+};
 
-  async readLikedPlaylists(
-    userId: string,
-    options?: RepositoryOptions
-  ): Promise<any[]> {
-    try {
-      const result = await this.findMany({
-        ...options,
-        where: {
-          ...options?.where,
-          user_id: userId,
-          likeable_type: 'playlist',
-        },
-        orderBy: {
-          created_at: 'desc',
-        },
-      });
+// ========== READ ==========
+export const getUserLikes = async (userId: string): Promise<UserLike[]> => {
+  return prisma.userLike.findMany({
+    where: { user_id: userId },
+    orderBy: { created_at: 'desc' }
+  });
+};
 
-      // Get playlist details
-      const playlistIds = result.map(like => like.likeable_id);
-      const playlists = await this.prisma.playlist.findMany({
-        where: {
-          id: { in: playlistIds },
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              username: true,
-              display_name: true,
-            },
-          },
-        },
-      });
-
-      // Combine with like data
-      return result.map(like => ({
-        like,
-        playlist: playlists.find(playlist => playlist.id === like.likeable_id),
-      }));
-    } catch (error) {
-      logger.error('Error fetching liked playlists', { userId, error });
-      throw error;
-    }
-  }
-
-  // Update operations
-  async updateUserLike(id: string, data: Prisma.UserLikeUpdateInput): Promise<UserLikeModel> {
-    return this.update({ id }, data);
-  }
-
-  async updateManyUserLikes(
-    where: Prisma.UserLikeWhereInput,
-    data: Prisma.UserLikeUpdateInput
-  ): Promise<Prisma.BatchPayload> {
-    return this.updateMany(where, data);
-  }
-
-  // Delete operations
-  async deleteUserLike(id: string): Promise<UserLikeModel> {
-    return this.delete({ id });
-  }
-
-  async deleteManyUserLikes(where?: Prisma.UserLikeWhereInput): Promise<Prisma.BatchPayload> {
-    return this.deleteMany(where);
-  }
-
-  async deleteUserLikesByUser(userId: string): Promise<Prisma.BatchPayload> {
-    return this.deleteMany({
+export const getUserLikedSongs = async (userId: string): Promise<UserLike[]> => {
+  return prisma.userLike.findMany({
+    where: {
       user_id: userId,
-    });
-  }
+      likeable_type: 'song'
+    },
+    orderBy: { created_at: 'desc' }
+  });
+};
 
-  // Utility operations
-  async userLikeExists(id: string): Promise<boolean> {
-    return this.exists({ id });
-  }
+export const getUserLikedAlbums = async (userId: string): Promise<UserLike[]> => {
+  return prisma.userLike.findMany({
+    where: {
+      user_id: userId,
+      likeable_type: 'album'
+    },
+    orderBy: { created_at: 'desc' }
+  });
+};
 
-  async countUserLikes(options?: { where?: Prisma.UserLikeWhereInput }): Promise<number> {
-    return this.count(options);
-  }
-
-  async countUserLikesByUser(userId: string): Promise<number> {
-    return this.count({
-      where: {
-        user_id: userId,
-      },
-    });
-  }
-
-  async countUserLikesByType(userId: string, likeableType: string): Promise<number> {
-    return this.count({
-      where: {
-        user_id: userId,
-        likeable_type: likeableType,
-      },
-    });
-  }
-
-  async countLikesForItem(likeableType: string, likeableId: string): Promise<number> {
-    return this.count({
-      where: {
-        likeable_type: likeableType,
-        likeable_id: likeableId,
-      },
-    });
-  }
-
-  // Complex business logic operations
-  async likeItem(
-    userId: string,
-    likeableType: string,
-    likeableId: string
-  ): Promise<UserLikeModel> {
-    try {
-      // Validate likeable type
-      if (!['song', 'album', 'playlist', 'artist'].includes(likeableType)) {
-        throw new ValidationError('Invalid likeable type', 'likeable_type');
-      }
-
-      // Check if already liked
-      const existingLike = await this.findFirst({
-        where: {
-          user_id: userId,
-          likeable_type: likeableType,
-          likeable_id: likeableId,
-        },
-      });
-
-      if (existingLike) {
-        throw new ValidationError('Item already liked', 'likeable_id');
-      }
-
-      // Create like
-      const like = await this.create({
-        user: { connect: { id: userId } },
-        likeable_type: likeableType,
-        likeable_id: likeableId,
-      });
-
-      // Update like count on the target item if it's a song
-      if (likeableType === 'song') {
-        await this.prisma.song.update({
-          where: { id: likeableId },
-          data: {
-            like_count: { increment: 1 },
-          },
-        });
-      }
-
-      return like;
-    } catch (error) {
-      logger.error('Error liking item', { userId, likeableType, likeableId, error });
-      throw error;
+export const isLiked = async (
+  userId: string, 
+  likeableType: string, 
+  likeableId: string
+): Promise<boolean> => {
+  const like = await prisma.userLike.findFirst({
+    where: {
+      user_id: userId,
+      likeable_type: likeableType,
+      likeable_id: likeableId
     }
-  }
+  });
+  return like !== null;
+};
 
-  async unlikeItem(
-    userId: string,
-    likeableType: string,
-    likeableId: string
-  ): Promise<void> {
-    try {
-      // Find the like
-      const like = await this.findFirst({
-        where: {
-          user_id: userId,
-          likeable_type: likeableType,
-          likeable_id: likeableId,
-        },
-      });
+// ========== DELETE ==========
+export const deleteUserLike = async (id: string): Promise<UserLike> => {
+  return prisma.userLike.delete({ where: { id } });
+};
 
-      if (!like) {
-        throw new NotFoundError('Like', `${userId}:${likeableType}:${likeableId}`);
-      }
-
-      // Delete like
-      await this.delete({ id: like.id });
-
-      // Update like count on the target item if it's a song
-      if (likeableType === 'song') {
-        await this.prisma.song.update({
-          where: { id: likeableId },
-          data: {
-            like_count: { decrement: 1 },
-          },
-        });
-      }
-    } catch (error) {
-      logger.error('Error unliking item', { userId, likeableType, likeableId, error });
-      throw error;
+export const unlikeItem = async (
+  userId: string, 
+  likeableType: string, 
+  likeableId: string
+): Promise<void> => {
+  await prisma.userLike.deleteMany({
+    where: {
+      user_id: userId,
+      likeable_type: likeableType,
+      likeable_id: likeableId
     }
-  }
+  });
+};
 
-  async toggleLike(
-    userId: string,
-    likeableType: string,
-    likeableId: string
-  ): Promise<{ liked: boolean; like?: UserLikeModel }> {
-    try {
-      const existingLike = await this.findFirst({
-        where: {
-          user_id: userId,
-          likeable_type: likeableType,
-          likeable_id: likeableId,
-        },
-      });
+export const unlikeSong = async (userId: string, songId: string): Promise<void> => {
+  return unlikeItem(userId, 'song', songId);
+};
 
-      if (existingLike) {
-        await this.unlikeItem(userId, likeableType, likeableId);
-        return { liked: false };
-      } else {
-        const like = await this.likeItem(userId, likeableType, likeableId);
-        return { liked: true, like };
-      }
-    } catch (error) {
-      logger.error('Error toggling like', { userId, likeableType, likeableId, error });
-      throw error;
-    }
-  }
+export const unlikeAlbum = async (userId: string, albumId: string): Promise<void> => {
+  return unlikeItem(userId, 'album', albumId);
+};
 
-  async isLiked(
-    userId: string,
-    likeableType: string,
-    likeableId: string
-  ): Promise<boolean> {
-    try {
-      const like = await this.findFirst({
-        where: {
-          user_id: userId,
-          likeable_type: likeableType,
-          likeable_id: likeableId,
-        },
-      });
+export const unlikeArtist = async (userId: string, artistId: string): Promise<void> => {
+  return unlikeItem(userId, 'artist', artistId);
+};
 
-      return like !== null;
-    } catch (error) {
-      logger.error('Error checking if item is liked', { userId, likeableType, likeableId, error });
-      throw error;
-    }
-  }
-
-  async getUserLikeStats(userId: string): Promise<{
-    totalLikes: number;
-    likedSongs: number;
-    likedAlbums: number;
-    likedArtists: number;
-    likedPlaylists: number;
-  }> {
-    try {
-      const [total, songs, albums, artists, playlists] = await Promise.all([
-        this.countUserLikesByUser(userId),
-        this.countUserLikesByType(userId, 'song'),
-        this.countUserLikesByType(userId, 'album'),
-        this.countUserLikesByType(userId, 'artist'),
-        this.countUserLikesByType(userId, 'playlist'),
-      ]);
-
-      return {
-        totalLikes: total,
-        likedSongs: songs,
-        likedAlbums: albums,
-        likedArtists: artists,
-        likedPlaylists: playlists,
-      };
-    } catch (error) {
-      logger.error('Error getting user like stats', { userId, error });
-      throw error;
-    }
-  }
-
-  async getPopularItems(
-    likeableType: string,
-    limit: number = 20,
-    daysSince?: number
-  ): Promise<any[]> {
-    try {
-      const whereClause: any = {
-        likeable_type: likeableType,
-      };
-
-      if (daysSince) {
-        const sinceDate = new Date();
-        sinceDate.setDate(sinceDate.getDate() - daysSince);
-        whereClause.created_at = { gte: sinceDate };
-      }
-
-      const result = await this.prisma.userLike.groupBy({
-        by: ['likeable_id'],
-        where: whereClause,
-        _count: {
-          likeable_id: true,
-        },
-        orderBy: {
-          _count: {
-            likeable_id: 'desc',
-          },
-        },
-        take: limit,
-      });
-
-      return result.map(r => ({
-        itemId: r.likeable_id,
-        likeCount: r._count.likeable_id,
-      }));
-    } catch (error) {
-      logger.error('Error getting popular items', { likeableType, error });
-      throw error;
-    }
-  }
-}
-
-export const userLikesRepository = new UserLikesRepository();
+// ========== UTILITY ==========
+export const countUserLikes = async (userId: string): Promise<number> => {
+  return prisma.userLike.count({
+    where: { user_id: userId }
+  });
+};
