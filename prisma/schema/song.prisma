@@ -5,10 +5,10 @@
 //  song_number     Int?
 //  disc_number      Int      @default(1)
 //  album_id         String?
-//  audio_file_url   String
+//  audio_url   String
 //  preview_url      String?
 //  lyrics           String?
-//  explicit_content Boolean  @default(false)
+//  explicit         Boolean  @default(false)
 //  isrc             String?  @db.VarChar(20)
 //  play_count       BigInt   @default(0)
 //  like_count       Int      @default(0)

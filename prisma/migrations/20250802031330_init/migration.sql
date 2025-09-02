@@ -43,7 +43,7 @@ CREATE TABLE "Song" (
     album_id UUID REFERENCES "Album"(id),
     duration_ms INTEGER NOT NULL,
     song_number INTEGER,
-    audio_file_url TEXT NOT NULL,
+    audio_url TEXT NOT NULL,
     cover_image_url TEXT,
     play_count INTEGER DEFAULT 0,
     explicit BOOLEAN DEFAULT false,
