@@ -1,4 +1,4 @@
-import { prisma } from '../database/client';
+import { prisma } from '../../database/client';
 import type { Song, Prisma } from '@prisma/client';
 
 // ========== CREATE ==========
