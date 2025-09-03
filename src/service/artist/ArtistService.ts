@@ -1,25 +1,7 @@
 import * as artistRepo from '../../repo/artist/ArtistRepository';
 import type { Artist, Prisma } from '@prisma/client';
+import type { CreateArtistInput, UpdateArtistInput } from '@/interface/artist/ArtistInterface';
 
-export interface CreateArtistInput {
-  name: string;
-  bio?: string;
-  image_url?: string;
-  verified?: boolean;
-  genres?: string[];
-  country?: string;
-  website?: string;
-}
-
-export interface UpdateArtistInput {
-  name?: string;
-  bio?: string;
-  image_url?: string;
-  verified?: boolean;
-  genres?: string[];
-  country?: string;
-  website?: string;
-}
 
 export const createArtist = async (input: CreateArtistInput): Promise<Artist> => {
   // Validation
@@ -30,10 +12,11 @@ export const createArtist = async (input: CreateArtistInput): Promise<Artist> =>
   const artistData: Prisma.ArtistCreateInput = {
     name: input.name.trim(),
     bio: input.bio?.trim(),
-    image_url: input.image_url,
+    profile_image_url: input.profile_image_url,
+    banner_image_url: input.banner_image_url,
     verified: input.verified || false,
     genres: input.genres || [],
-    country: input.country,
+    country_code: input.country_code,
     website: input.website,
     monthly_listeners: 0
   };

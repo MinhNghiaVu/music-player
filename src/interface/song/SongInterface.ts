@@ -1,13 +1,16 @@
 export interface CreateSongInput {
   title: string;
-  album_id: string;
   duration_seconds: number;
   song_number?: number;
   disc_number?: number;
-  genres?: string[];
+  album_id?: string;
   audio_url?: string;
+  preview_url?: string;
   lyrics?: string;
   explicit?: boolean;
+  isrc?: string;
+  genres?: string[];
+  release_date?: Date;
 }
 
 export interface UpdateSongInput {
@@ -15,8 +18,14 @@ export interface UpdateSongInput {
   duration_seconds?: number;
   song_number?: number;
   disc_number?: number;
-  genres?: string[];
+  album_id?: string;
   audio_url?: string;
+  preview_url?: string;
   lyrics?: string;
   explicit?: boolean;
+  isrc?: string;
+  play_count?: bigint;
+  like_count?: number;
+  genres?: string[];
+  release_date?: Date;
 }
