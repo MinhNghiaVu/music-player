@@ -1,10 +1,12 @@
 import * as albumRepo from '../../repos/album/AlbumRepository';
 import type { Album, Prisma } from '@prisma/client';
-import type { CreateAlbumInput, UpdateAlbumInput } from '../../repos/album/AlbumInterface';
+import type { CreateAlbumInput, UpdateAlbumInput } from '../../interfaces/album/AlbumInterface';
+import { logger } from '@/utils/logger';
 
 export const createAlbum = async (input: CreateAlbumInput): Promise<Album> => {
   // Basic validation
-  if (!input.title?.trim()) {
+  if (!input.title) {
+    logger.error(`Album title is missing in input ${JSON.stringify(input)}`);
     throw new Error('Album title is required');
   }
 
@@ -12,18 +14,18 @@ export const createAlbum = async (input: CreateAlbumInput): Promise<Album> => {
     title: input.title.trim(),
     description: input.description?.trim(),
     release_date: input.release_date,
-    album_type: input.album_type || 'album',
     genres: input.genres || [],
     cover_image_url: input.cover_image_url,
-    record_label: input.record_label,
-    copyright_info: input.copyright_info
   };
+
+  logger.info(`Creating album with data: ${JSON.stringify(albumData)}`);
 
   return albumRepo.createAlbum(albumData);
 };
 
 export const getAlbumById = async (id: string): Promise<Album | null> => {
-  if (!id?.trim()) {
+  if (!id) {
+    logger.error('Album ID is missing or empty');
     throw new Error('Album ID is required');
   }
 
@@ -34,53 +36,22 @@ export const getAllAlbums = async (): Promise<Album[]> => {
   return albumRepo.getAllAlbums();
 };
 
-export const getAlbumWithSongs = async (id: string) => {
-  if (!id?.trim()) {
-    throw new Error('Album ID is required');
-  }
-
-  const album = await albumRepo.getAlbumWithSongs(id);
-  if (!album) {
-    throw new Error('Album not found');
-  }
-
-  return album;
-};
-
-export const searchAlbums = async (query: string): Promise<Album[]> => {
-  if (!query?.trim()) {
-    return [];
-  }
-
-  return albumRepo.searchAlbums(query.trim());
-};
-
-export const getAlbumsByGenre = async (genre: string): Promise<Album[]> => {
-  if (!genre?.trim()) {
-    throw new Error('Genre is required');
-  }
-
-  return albumRepo.getAlbumsByGenre(genre);
-};
-
-export const getRecentAlbums = async (limit: number = 10): Promise<Album[]> => {
-  const validLimit = Math.min(Math.max(limit, 1), 50); // Between 1-50
-  return albumRepo.getRecentAlbums(validLimit);
-};
-
 export const updateAlbum = async (id: string, input: UpdateAlbumInput): Promise<Album> => {
-  if (!id?.trim()) {
+  if (!id) {
+    logger.error('Album ID is missing or empty');
     throw new Error('Album ID is required');
   }
 
   // Check if album exists
   const exists = await albumRepo.albumExists(id);
   if (!exists) {
+    logger.error(`Album with ID ${id} does not exist`);
     throw new Error('Album not found');
   }
 
   // Validate title if provided
   if (input.title !== undefined && !input.title?.trim()) {
+    logger.error(`Invalid album title for ID ${id}`);
     throw new Error('Album title cannot be empty');
   }
 
@@ -91,8 +62,6 @@ export const updateAlbum = async (id: string, input: UpdateAlbumInput): Promise<
     ...(input.album_type && { album_type: input.album_type }),
     ...(input.genres && { genres: input.genres }),
     ...(input.cover_image_url !== undefined && { cover_image_url: input.cover_image_url }),
-    ...(input.record_label !== undefined && { record_label: input.record_label }),
-    ...(input.copyright_info !== undefined && { copyright_info: input.copyright_info }),
     updated_at: new Date()
   };
 
@@ -100,7 +69,7 @@ export const updateAlbum = async (id: string, input: UpdateAlbumInput): Promise<
 };
 
 export const deleteAlbum = async (id: string): Promise<Album> => {
-  if (!id?.trim()) {
+  if (id) {
     throw new Error('Album ID is required');
   }
 
@@ -110,14 +79,4 @@ export const deleteAlbum = async (id: string): Promise<Album> => {
   }
 
   return albumRepo.deleteAlbum(id);
-};
-
-export const getAlbumStats = async () => {
-  const totalAlbums = await albumRepo.countAlbums();
-  const recentAlbums = await albumRepo.getRecentAlbums(5);
-
-  return {
-    total: totalAlbums,
-    recent: recentAlbums
-  };
 };
