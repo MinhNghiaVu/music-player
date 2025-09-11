@@ -1,4 +1,4 @@
-import { albumController } from '@/controllers/album/album.controller';
+import { albumController } from '@/album/album.controller';
 
 // TODO: add zod validation for request and response
 

@@ -1,5 +1,5 @@
 import * as songRepo from '../../repos/song.repository';
-import * as albumRepo from '../../repos/album/album.repository';
+import * as albumRepo from '../../album/album.repository';
 import type { Song, Prisma } from '@prisma/client';
 import type { CreateSongInput, UpdateSongInput } from '../../interfaces/song/song.interface';
 

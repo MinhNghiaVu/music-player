@@ -1,4 +1,4 @@
-import { albumService } from "@/services/album/album.service"
+import { albumService } from "@/album/album.service"
 import type { Album, Prisma } from "@prisma/client"
 
 export const createAlbum = async (data: Prisma.AlbumCreateInput): Promise<Album> => {

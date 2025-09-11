@@ -1,4 +1,4 @@
-import * as albumRepo from '../../repos/album/album.repository';
+import * as albumRepo from './album.repository';
 import type { Album, Prisma } from '@prisma/client';
 import { logger } from '@/utils/logger';
 
