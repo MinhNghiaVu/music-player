@@ -1,6 +1,6 @@
-import * as artistRepo from '../../repo/artist/ArtistRepository';
+import * as artistRepo from '../../repos/artist/ArtistRepository';
 import type { Artist, Prisma } from '@prisma/client';
-import type { CreateArtistInput, UpdateArtistInput } from '@/interface/artist/ArtistInterface';
+import type { CreateArtistInput, UpdateArtistInput } from '@/interfaces/artist/ArtistInterface';
 
 
 export const createArtist = async (input: CreateArtistInput): Promise<Artist> => {

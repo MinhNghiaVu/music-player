@@ -6,10 +6,10 @@ export const createUserFollow = async (data: Prisma.UserFollowCreateInput): Prom
   return prisma.userFollow.create({ data });
 };
 
-export const followUser = async (followerId: string, followingId: string): Promise<UserFollow> => {
+export const followUser = async (userId: string, followingId: string): Promise<UserFollow> => {
   return prisma.userFollow.create({
     data: {
-      follower_id: followerId,
+      follower_id: userId,
       followable_type: 'user',
       followable_id: followingId
     }

@@ -1,7 +1,7 @@
-import * as songRepo from '../../repo/song/SongRepository';
-import * as albumRepo from '../../repo/album/AlbumRepository';
+import * as songRepo from '../../repos/song/SongRepository';
+import * as albumRepo from '../../repos/album/AlbumRepository';
 import type { Song, Prisma } from '@prisma/client';
-import type { CreateSongInput, UpdateSongInput } from '../../interface/song/SongInterface';
+import type { CreateSongInput, UpdateSongInput } from '../../interfaces/song/SongInterface';
 
 export const createSong = async (input: CreateSongInput): Promise<Song> => {
   // Validation
