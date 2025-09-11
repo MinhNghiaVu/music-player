@@ -2,12 +2,16 @@ import { prisma } from '../../database/client';
 import type { Album, Prisma } from '@prisma/client';
 
 // ========== CREATE ==========
-export const createAlbum = async (data: Prisma.AlbumCreateInput): Promise<Album> => {
+export const createAlbum = async (
+  data: Prisma.AlbumCreateInput
+): Promise<Album> => {
   return prisma.album.create({ data });
 };
 
 // ========== READ ==========
-export const getAlbumById = async (id: string): Promise<Album | null> => {
+export const getAlbumById = async (
+  id: string
+): Promise<Album | null> => {
   return prisma.album.findUnique({ where: { id } });
 };
 
@@ -29,12 +33,16 @@ export const updateAlbum = async (
 };
 
 // ========== DELETE ==========
-export const deleteAlbum = async (id: string): Promise<Album> => {
+export const deleteAlbum = async (
+  id: string
+): Promise<Album> => {
   return prisma.album.delete({ where: { id } });
 };
 
 // ========== UTILITY ==========
-export const albumExists = async (id: string): Promise<boolean> => {
+export const albumExists = async (
+  id: string
+): Promise<boolean> => {
   const album = await prisma.album.findUnique({ where: { id } });
   return album !== null;
 };

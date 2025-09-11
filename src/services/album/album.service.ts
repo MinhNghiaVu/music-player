@@ -1,9 +1,10 @@
 import * as albumRepo from '../../repos/album/album.repository';
 import type { Album, Prisma } from '@prisma/client';
-import type { CreateAlbumInput, UpdateAlbumInput } from '../../interfaces/album/album.interface';
 import { logger } from '@/utils/logger';
 
-export const createAlbum = async (input: CreateAlbumInput): Promise<Album> => {
+export const createAlbum = async (
+  input: Prisma.AlbumCreateInput
+): Promise<Album> => {
   // Basic validation
   if (!input.title) {
     logger.error(`Album title is missing in input ${JSON.stringify(input)}`);
@@ -23,7 +24,9 @@ export const createAlbum = async (input: CreateAlbumInput): Promise<Album> => {
   return albumRepo.createAlbum(albumData);
 };
 
-export const getAlbumById = async (id: string): Promise<Album | null> => {
+export const getAlbumById = async (
+  id: string
+): Promise<Album | null> => {
   if (!id) {
     logger.error('Album ID is missing or empty');
     throw new Error('Album ID is required');
@@ -36,7 +39,10 @@ export const getAllAlbums = async (): Promise<Album[]> => {
   return albumRepo.getAllAlbums();
 };
 
-export const updateAlbum = async (id: string, input: UpdateAlbumInput): Promise<Album> => {
+export const updateAlbum = async (
+  id: string,
+  input: Prisma.AlbumUpdateInput
+): Promise<Album> => {
   if (!id) {
     logger.error('Album ID is missing or empty');
     throw new Error('Album ID is required');
@@ -50,16 +56,15 @@ export const updateAlbum = async (id: string, input: UpdateAlbumInput): Promise<
   }
 
   // Validate title if provided
-  if (input.title !== undefined && !input.title?.trim()) {
+  if (input.title !== undefined && !input.title) {
     logger.error(`Invalid album title for ID ${id}`);
     throw new Error('Album title cannot be empty');
   }
 
   const updateData: Prisma.AlbumUpdateInput = {
-    ...(input.title && { title: input.title.trim() }),
-    ...(input.description !== undefined && { description: input.description?.trim() }),
+    ...(input.title && { title: input.title }),
+    ...(input.description !== undefined && { description: input.description }),
     ...(input.release_date && { release_date: input.release_date }),
-    ...(input.album_type && { album_type: input.album_type }),
     ...(input.genres && { genres: input.genres }),
     ...(input.cover_image_url !== undefined && { cover_image_url: input.cover_image_url }),
     updated_at: new Date()
@@ -68,15 +73,27 @@ export const updateAlbum = async (id: string, input: UpdateAlbumInput): Promise<
   return albumRepo.updateAlbum(id, updateData);
 };
 
-export const deleteAlbum = async (id: string): Promise<Album> => {
-  if (id) {
+export const deleteAlbum = async (
+  id: string
+): Promise<Album> => {
+  if (!id) {
+    logger.error('Album ID is missing or empty');
     throw new Error('Album ID is required');
   }
 
   const exists = await albumRepo.albumExists(id);
   if (!exists) {
+    logger.error(`Album with ID ${id} does not exist`);
     throw new Error('Album not found');
   }
 
   return albumRepo.deleteAlbum(id);
 };
+
+export const albumService = {
+  createAlbum,
+  getAlbumById,
+  getAllAlbums,
+  updateAlbum,
+  deleteAlbum,
+}

@@ -1,9 +1,8 @@
-import * as artistRepo from '../../repos/artist/artist.repository';
+import * as artistRepo from '../../repos/artist.repository';
 import type { Artist, Prisma } from '@prisma/client';
-import type { CreateArtistInput, UpdateArtistInput } from '@/interfaces/artist/artist.interface';
 
 
-export const createArtist = async (input: CreateArtistInput): Promise<Artist> => {
+export const createArtist = async (input: Prisma.AlbumCreateInput): Promise<Artist> => {
   // Validation
   if (!input.name?.trim()) {
     throw new Error('Artist name is required');
