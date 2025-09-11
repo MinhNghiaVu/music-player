@@ -1,6 +1,6 @@
-import * as albumRepo from '../../repos/album/AlbumRepository';
+import * as albumRepo from '../../repos/album/album.repository';
 import type { Album, Prisma } from '@prisma/client';
-import type { CreateAlbumInput, UpdateAlbumInput } from '../../interfaces/album/AlbumInterface';
+import type { CreateAlbumInput, UpdateAlbumInput } from '../../interfaces/album/album.interface';
 import { logger } from '@/utils/logger';
 
 export const createAlbum = async (input: CreateAlbumInput): Promise<Album> => {
