@@ -5,7 +5,8 @@ import type { CreateSongInput, UpdateSongInput } from '../../interfaces/song/son
 
 export const createSong = async (input: CreateSongInput): Promise<Song> => {
   // Validation
-  if (!input.title?.trim()) {
+  if (!input.title) {
+    logger.error(`Song title is missing for input `)
     throw new Error('Song title is required');
   }
 

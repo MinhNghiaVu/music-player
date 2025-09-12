@@ -2,7 +2,7 @@
 export * from '../album/album.repository';
 
 // Song operations  
-export * from './song/song.repository';
+export * from '../song/song.repository';
 
 // Artist operations
 export * from './artist/artist.repository';
