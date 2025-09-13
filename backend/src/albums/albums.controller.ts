@@ -1,6 +1,23 @@
-import { albumService } from "@/album/album.service"
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  HttpCode,
+  HttpStatus,
+  ValidationPipe,
+} from '@nestjs/common';
+import { albumService } from "@/albums/albums.service"
 import type { Album, Prisma } from "@prisma/client"
 
+@Controller('albums') 
+export const albumController = {
+  constructor(private readonly albumsService: AlbumsService) {}
+  
+}
 export const createAlbum = async (data: Prisma.AlbumCreateInput): Promise<Album> => {
   return albumService.createAlbum(data);
 }
@@ -19,12 +36,4 @@ export const updateAlbum = async (id: string, data: Prisma.AlbumUpdateInput): Pr
 
 export const deleteAlbum = async (id: string): Promise<Album> => {
   return albumService.deleteAlbum(id);
-}
-
-export const albumController = {
-  createAlbum,
-  getAlbumById,
-  getAllAlbums,
-  updateAlbum,
-  deleteAlbum
 }

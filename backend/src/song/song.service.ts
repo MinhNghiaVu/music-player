@@ -1,20 +1,17 @@
-import * as songRepo from '../../repos/song.repository';
-import * as albumRepo from '../../album/album.repository';
 import type { Song, Prisma } from '@prisma/client';
-import type { CreateSongInput, UpdateSongInput } from '../../interfaces/song/song.interface';
+import { logger } from '../utils/logger';
+import { songRepo } from './song.repository';
+import { albumRepo } from '@/repos';
 
-export const createSong = async (input: CreateSongInput): Promise<Song> => {
+export const createSong = async (input: Prisma.SongCreateInput): Promise<Song> => {
   // Validation
   if (!input.title) {
-    logger.error(`Song title is missing for input `)
+    logger.error(`Song title is missing for input ${JSON.stringify(input)}`)
     throw new Error('Song title is required');
   }
 
-  if (!input.album_id?.trim()) {
-    throw new Error('Album ID is required');
-  }
-
   if (!input.duration_seconds || input.duration_seconds <= 0) {
+    logger.error(`Song duration is invalid for input ${JSON.stringify(input)}`)
     throw new Error('Valid duration is required');
   }
 
@@ -25,7 +22,7 @@ export const createSong = async (input: CreateSongInput): Promise<Song> => {
   }
 
   const songData: Prisma.SongCreateInput = {
-    title: input.title.trim(),
+    title: input.title,
     album: { connect: { id: input.album_id } },
     duration_seconds: input.duration_seconds,
     song_number: input.song_number ?? 1,
@@ -48,50 +45,8 @@ export const getSongById = async (id: string): Promise<Song | null> => {
   return songRepo.getSongById(id);
 };
 
-export const getSongWithDetails = async (id: string) => {
-  if (!id?.trim()) {
-    throw new Error('Song ID is required');
-  }
-
-  const song = await songRepo.getSongWithDetails(id);
-  if (!song) {
-    throw new Error('Song not found');
-  }
-
-  return song;
-};
-
-export const getSongsByAlbum = async (albumId: string): Promise<Song[]> => {
-  if (!albumId?.trim()) {
-    throw new Error('Album ID is required');
-  }
-
-  return songRepo.getSongsByAlbum(albumId);
-};
-
-export const searchSongs = async (query: string): Promise<Song[]> => {
-  if (!query?.trim()) {
-    return [];
-  }
-
-  return songRepo.searchSongs(query.trim());
-};
-
-export const getPopularSongs = async (limit: number = 20): Promise<Song[]> => {
-  const validLimit = Math.min(Math.max(limit, 1), 100); // Between 1-100
-  return songRepo.getPopularSongs(validLimit);
-};
-
-export const getSongsByGenre = async (genre: string): Promise<Song[]> => {
-  if (!genre?.trim()) {
-    throw new Error('Genre is required');
-  }
-
-  return songRepo.getSongsByGenre(genre);
-};
-
-export const updateSong = async (id: string, input: UpdateSongInput): Promise<Song> => {
-  if (!id?.trim()) {
+export const updateSong = async (id: string, input: Prisma.SongUpdateInput): Promise<Song> => {
+  if (!id) {
     throw new Error('Song ID is required');
   }
 
@@ -127,7 +82,7 @@ export const updateSong = async (id: string, input: UpdateSongInput): Promise<So
 };
 
 export const playSong = async (id: string): Promise<Song> => {
-  if (!id?.trim()) {
+  if (!id) {
     throw new Error('Song ID is required');
   }
 

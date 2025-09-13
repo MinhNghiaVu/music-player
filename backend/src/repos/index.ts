@@ -1,5 +1,5 @@
 // Album operations
-export * from '../album/album.repository';
+export * from '../albums/albums.repository';
 
 // Song operations  
 export * from '../song/song.repository';

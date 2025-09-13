@@ -15,7 +15,7 @@ export const getSongWithDetails = async (id: string) => {
   return prisma.song.findUnique({
     where: { id },
     include: {
-      album: true,
+      // album: true,
       song_artists: {
         include: { artist: true }
       }
@@ -33,18 +33,18 @@ export const getSongWithDetails = async (id: string) => {
 //   });
 // };
 
-export const searchSongs = async (query: string): Promise<Song[]> => {
-  return prisma.song.findMany({
-    where: {
-      title: { contains: query, mode: 'insensitive' }
-    },
-    include: {
-      album: true,
-      song_artists: { include: { artist: true } }
-    },
-    take: 50
-  });
-};
+// export const searchSongs = async (query: string): Promise<Song[]> => {
+//   return prisma.song.findMany({
+//     where: {
+//       title: { contains: query, mode: 'insensitive' }
+//     },
+//     include: {
+//       album: true,
+//       song_artists: { include: { artist: true } }
+//     },
+//     take: 50
+//   });
+// };
 
 // export const getPopularSongs = async (limit: number = 20): Promise<Song[]> => {
 //   return prisma.song.findMany({
@@ -104,3 +104,13 @@ export const songExists = async (id: string): Promise<boolean> => {
 export const countSongs = async (): Promise<number> => {
   return prisma.song.count();
 };
+
+export const songRepo = {
+  createSong,
+  getSongById,
+  getSongWithDetails,
+  updateSong,
+  deleteSong,
+  songExists,
+  countSongs
+}

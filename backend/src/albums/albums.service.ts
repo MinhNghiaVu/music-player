@@ -1,7 +1,10 @@
-import * as albumRepo from './album.repository';
+
+
+import { albumRepo } from './albums.repository';
 import type { Album, Prisma } from '@prisma/client';
 import { logger } from '@/utils/logger';
 
+@Injectable
 export const createAlbum = async (
   input: Prisma.AlbumCreateInput
 ): Promise<Album> => {
