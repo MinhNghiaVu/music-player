@@ -11,22 +11,24 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { AlbumsService } from "@/albums/albums.service"
-import type { Album, Prisma } from "@prisma/client"
+import { CreateAlbumDto } from "@/albums/dto/create-album.dto"
+import { UpdateAlbumDto } from "@/albums/dto/update-album.dto"
+import type { Album } from "@prisma/client"
 
 @Controller('albums') 
-export const albumController = {
+export class AlbumController {
   constructor(private readonly albumsService: AlbumsService) {};
 
   @Post() // POST /albums
   @HttpCode(HttpStatus.CREATED)
-  async createAlbum(
+  async createAlbum (
     @Body(ValidationPipe) createAlbumDto: CreateAlbumDto
   ): Promise<Album> {
-    return this.albumsService.createAlbum(data);
+    return this.albumsService.createAlbum(createAlbumDto);
   }
 
   @Get(':id') // GET /albums/:id
-  async getAlbumById(
+  async getAlbumById (
     @Param('id') id: string
   ): Promise<Album | null> {
     return this.albumsService.getAlbumById(id);
@@ -38,17 +40,16 @@ export const albumController = {
   }
 
   @Patch(':id') // PATCH /albums/:id
-  async updateAlbum(
+  async updateAlbum (
     @Param('id') id: string,
-    @Body(new ValidationPipe({ whitelist: true })) 
-    data: Prisma.AlbumUpdateInput
+    @Body(ValidationPipe) updateAlbumDto: UpdateAlbumDto
   ): Promise<Album> {
-    return this.albumsService.updateAlbum(id, data);
+    return this.albumsService.updateAlbum(id, updateAlbumDto);
   }
 
   @Delete(':id') // DELETE /albums/:id
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteAlbum(
+  async deleteAlbum (
     @Param('id') id: string
   ): Promise<Album> {
     return this.albumsService.deleteAlbum(id);
