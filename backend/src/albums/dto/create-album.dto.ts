@@ -1,6 +1,7 @@
 // src/albums/dto/create-album.dto.ts
 import { IsString, IsOptional, IsArray, IsDateString } from 'class-validator';
 
+// TODO: Fix this to match what needs validation
 export class CreateAlbumDto {
   @IsString()
   title!: string;
