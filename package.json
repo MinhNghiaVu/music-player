@@ -7,6 +7,9 @@
     "lint": "eslint . --ext ts,tsx",
     "test": "npm --workspace backend run test && npm --workspace frontend run test"
   },
+  "dependencies": {
+    "dotenv": "^17.2.0"
+  },
   "devDependencies": {
     "typescript": "^5.2.2",
     "concurrently": "^8.2.0",
