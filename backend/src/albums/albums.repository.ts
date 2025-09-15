@@ -5,8 +5,8 @@ import {
 import { prisma } from '../database/client';
 import type { Album, Prisma } from '@prisma/client';
 
-@Injectable
-export class albumRepo {
+@Injectable()
+export class AlbumsRepo {
   // ========== CREATE ==========
   async createAlbum (
     data: Prisma.AlbumCreateInput
@@ -53,7 +53,7 @@ export class albumRepo {
     return album !== null;
   };
 
-  export const countAlbums = async (): Promise<number> => {
+  async countAlbums (): Promise<number> {
     return prisma.album.count();
   };
 }
