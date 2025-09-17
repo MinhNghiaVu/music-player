@@ -1,22 +1,11 @@
-// src/songs/dto/create-song.dto.ts
-import { 
-  IsString, 
-  IsOptional, 
-  IsArray, 
-  IsDateString, 
-  IsInt, 
-  IsUrl,
-  Min,
-  MaxLength 
-} from 'class-validator';
+// src/song/dto/create-song.dto.ts
+import { IsString, IsOptional, IsArray, IsDateString, IsInt, IsUrl } from 'class-validator';
 
 export class CreateSongDto {
   @IsString()
-  @MaxLength(255)
   title!: string;
 
   @IsInt()
-  @Min(1)
   duration_seconds!: number;
 
   @IsOptional()

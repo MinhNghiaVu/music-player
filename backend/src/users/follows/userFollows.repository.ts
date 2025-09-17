@@ -1,116 +1,128 @@
+import {
+  Injectable
+} from '@nestjs/common'
+
 import { prisma } from '../../database/client';
 import type { UserFollow, Prisma } from '@prisma/client';
 
-// ========== CREATE ==========
-export const createUserFollow = async (data: Prisma.UserFollowCreateInput): Promise<UserFollow> => {
-  return prisma.userFollow.create({ data });
-};
+@Injectable()
+export class UserFollowsRepo {
+  // ========== CREATE ==========
+  async createUserFollow (
+    data: Prisma.UserFollowCreateInput
+  ): Promise<UserFollow> {
+    return prisma.userFollow.create({ data });
+  }
 
-export const followUser = async (userId: string, followingId: string): Promise<UserFollow> => {
-  return prisma.userFollow.create({
-    data: {
-      follower_id: userId,
-      followable_type: 'user',
-      followable_id: followingId
-    }
-  });
-};
+  // ========== READ ==========
+  async getUserFollowById (
+    id: string
+  ): Promise<UserFollow | null> {
+    return prisma.userFollow.findUnique({ 
+      where: { id },
+      include: {
+        follower: true,
+        artist: true
+      }
+    });
+  }
 
-export const followArtist = async (userId: string, artistId: string): Promise<UserFollow> => {
-  return prisma.userFollow.create({
-    data: {
-      follower_id: userId,
-      followable_type: 'artist',
-      followable_id: artistId,
-    }
-  });
-};
+  async getUserFollowsByFollowerId (
+    followerId: string
+  ): Promise<UserFollow[]> {
+    return prisma.userFollow.findMany({
+      where: { follower_id: followerId },
+      include: {
+        artist: true
+      },
+      orderBy: { created_at: 'desc' }
+    });
+  }
 
-// ========== READ ==========
-export const getUserFollows = async (userId: string): Promise<UserFollow[]> => {
-  return prisma.userFollow.findMany({
-    where: { follower_id: userId },
-    orderBy: { created_at: 'desc' }
-  });
-};
+  async getUserFollowsByFollowableId (
+    followableType: string,
+    followableId: string
+  ): Promise<UserFollow[]> {
+    return prisma.userFollow.findMany({
+      where: { 
+        followable_type: followableType,
+        followable_id: followableId
+      },
+      include: {
+        follower: true
+      },
+      orderBy: { created_at: 'desc' }
+    });
+  }
 
-export const getUserFollowers = async (userId: string): Promise<UserFollow[]> => {
-  return prisma.userFollow.findMany({
-    where: {
-      followable_type: 'user',
-      followable_id: userId
-    },
-    orderBy: { created_at: 'desc' }
-  });
-};
+  async getUserFollowByFollowerAndFollowable (
+    followerId: string,
+    followableType: string,
+    followableId: string
+  ): Promise<UserFollow | null> {
+    return prisma.userFollow.findUnique({
+      where: {
+        follower_id_followable_type_followable_id: {
+          follower_id: followerId,
+          followable_type: followableType,
+          followable_id: followableId
+        }
+      }
+    });
+  }
 
-export const getFollowedArtists = async (userId: string): Promise<UserFollow[]> => {
-  return prisma.userFollow.findMany({
-    where: {
-      follower_id: userId,
-      followable_type: 'artist'
-    },
-    include: {
-      artist: true
-    },
-    orderBy: { created_at: 'desc' }
-  });
-};
+  // ========== UPDATE ==========
+  async updateUserFollow (
+    id: string, 
+    data: Prisma.UserFollowUpdateInput
+  ): Promise<UserFollow> {
+    return prisma.userFollow.update({
+      where: { id },
+      data
+    });
+  };
 
-export const isFollowing = async (
-  followerId: string, 
-  followableType: string, 
-  followableId: string
-): Promise<boolean> => {
-  const follow = await prisma.userFollow.findFirst({
-    where: {
-      follower_id: followerId,
-      followable_type: followableType,
-      followable_id: followableId
-    }
-  });
-  return follow !== null;
-};
+  // ========== DELETE ==========
+  async deleteUserFollow (
+    id: string
+  ): Promise<UserFollow> {
+    return prisma.userFollow.delete({ where: { id } });
+  };
 
-// ========== DELETE ==========
-export const deleteUserFollow = async (id: string): Promise<UserFollow> => {
-  return prisma.userFollow.delete({ where: { id } });
-};
+  async deleteUserFollowByFollowerAndFollowable (
+    followerId: string,
+    followableType: string,
+    followableId: string
+  ): Promise<UserFollow> {
+    return prisma.userFollow.delete({
+      where: {
+        follower_id_followable_type_followable_id: {
+          follower_id: followerId,
+          followable_type: followableType,
+          followable_id: followableId
+        }
+      }
+    });
+  };
 
-export const unfollowItem = async (
-  followerId: string, 
-  followableType: string, 
-  followableId: string
-): Promise<void> => {
-  await prisma.userFollow.deleteMany({
-    where: {
-      follower_id: followerId,
-      followable_type: followableType,
-      followable_id: followableId
-    }
-  });
-};
+  // ========== UTILITY ==========
+  async userFollowExists (
+    id: string
+  ): Promise<boolean> {
+    const userFollow = await prisma.userFollow.findUnique({ where: { id } });
+    return userFollow !== null;
+  };
 
-export const unfollowUser = async (followerId: string, followingId: string): Promise<void> => {
-  return unfollowItem(followerId, 'user', followingId);
-};
+  async userFollowExistsByFollowerAndFollowable (
+    followerId: string,
+    followableType: string,
+    followableId: string
+  ): Promise<boolean> {
+    const userFollow = await this.getUserFollowByFollowerAndFollowable(followerId, followableType, followableId);
+    return userFollow !== null;
+  };
 
-export const unfollowArtist = async (userId: string, artistId: string): Promise<void> => {
-  return unfollowItem(userId, 'artist', artistId);
-};
-
-// ========== UTILITY ==========
-export const countFollowers = async (userId: string): Promise<number> => {
-  return prisma.userFollow.count({
-    where: {
-      followable_type: 'user',
-      followable_id: userId
-    }
-  });
-};
-
-export const countFollowing = async (userId: string): Promise<number> => {
-  return prisma.userFollow.count({
-    where: { follower_id: userId }
-  });
-};
+  async countUserFollows (): Promise<number> {
+    return prisma.userFollow.count();
+  };
+}

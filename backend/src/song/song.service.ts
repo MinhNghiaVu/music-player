@@ -1,119 +1,121 @@
+import { Injectable } from '@nestjs/common';
+import { SongsRepo } from './song.repository';
 import type { Song, Prisma } from '@prisma/client';
-import { logger } from '../utils/logger';
-import { songRepo } from './song.repository';
-import { albumRepo } from '@/repos';
+import { logger } from '@/utils/logger';
 
-export const createSong = async (input: Prisma.SongCreateInput): Promise<Song> => {
-  // Validation
-  if (!input.title) {
-    logger.error(`Song title is missing for input ${JSON.stringify(input)}`)
-    throw new Error('Song title is required');
-  }
+@Injectable()
+export class SongsService {
+  constructor(private readonly songsRepo: SongsRepo) {}
 
-  if (!input.duration_seconds || input.duration_seconds <= 0) {
-    logger.error(`Song duration is invalid for input ${JSON.stringify(input)}`)
-    throw new Error('Valid duration is required');
-  }
+  async createSong(
+    input: Prisma.SongCreateInput
+  ): Promise<Song> {
+    // Basic validation
+    if (!input.title) {
+      logger.error(`Song title is missing in input ${JSON.stringify(input)}`);
+      throw new Error('Song title is required');
+    }
 
-  // Check if album exists
-  const albumExists = await albumRepo.albumExists(input.album_id);
-  if (!albumExists) {
-    throw new Error('Album not found');
-  }
+    if (!input.duration_seconds || input.duration_seconds <= 0) {
+      logger.error(`Invalid duration for song ${input.title}`);
+      throw new Error('Song duration must be greater than 0');
+    }
 
-  const songData: Prisma.SongCreateInput = {
-    title: input.title,
-    album: { connect: { id: input.album_id } },
-    duration_seconds: input.duration_seconds,
-    song_number: input.song_number ?? 1,
-    disc_number: input.disc_number ?? 1,
-    genres: input.genres ?? [],
-    audio_url: input.audio_url,
-    lyrics: input.lyrics,
-    explicit: input.explicit ?? false,
-    play_count: 0
+    const songData: Prisma.SongCreateInput = {
+      title: input.title.trim(),
+      duration_seconds: input.duration_seconds,
+      album_id: input.album_id,
+      audio_url: input.audio_url,
+      preview_url: input.preview_url,
+      genres: input.genres || [],
+      release_date: input.release_date,
+    };
+
+    logger.info(`Creating song with data: ${JSON.stringify(songData)}`);
+
+    return this.songsRepo.createSong(songData);
   };
 
-  return songRepo.createSong(songData);
-};
+  async getSongById (
+    id: string
+  ): Promise<Song | null> {
+    if (!id) {
+      logger.error('Song ID is missing or empty');
+      throw new Error('Song ID is required');
+    }
 
-export const getSongById = async (id: string): Promise<Song | null> => {
-  if (!id?.trim()) {
-    throw new Error('Song ID is required');
-  }
-
-  return songRepo.getSongById(id);
-};
-
-export const updateSong = async (id: string, input: Prisma.SongUpdateInput): Promise<Song> => {
-  if (!id) {
-    throw new Error('Song ID is required');
-  }
-
-  // Check if song exists
-  const exists = await songRepo.songExists(id);
-  if (!exists) {
-    throw new Error('Song not found');
-  }
-
-  // Validate title if provided
-  if (input.title !== undefined && !input.title?.trim()) {
-    throw new Error('Song title cannot be empty');
-  }
-
-  // Validate duration if provided
-  if (input.duration_seconds !== undefined && input.duration_seconds <= 0) {
-    throw new Error('Duration must be greater than 0');
-  }
-
-  const updateData: Prisma.SongUpdateInput = {
-    ...(input.title && { title: input.title.trim() }),
-    ...(input.duration_seconds && { duration_seconds: input.duration_seconds }),
-    ...(input.song_number !== undefined && { song_number: input.song_number }),
-    ...(input.disc_number !== undefined && { disc_number: input.disc_number }),
-    ...(input.genres && { genres: input.genres }),
-    ...(input.audio_url !== undefined && { audio_url: input.audio_url }),
-    ...(input.lyrics !== undefined && { lyrics: input.lyrics }),
-    ...(input.explicit !== undefined && { explicit: input.explicit }),
-    updated_at: new Date()
+    return this.songsRepo.getSongById(id);
   };
 
-  return songRepo.updateSong(id, updateData);
-};
-
-export const playSong = async (id: string): Promise<Song> => {
-  if (!id) {
-    throw new Error('Song ID is required');
-  }
-
-  const exists = await songRepo.songExists(id);
-  if (!exists) {
-    throw new Error('Song not found');
-  }
-
-  // Increment play count
-  return songRepo.incrementPlayCount(id);
-};
-
-export const deleteSong = async (id: string): Promise<Song> => {
-  if (!id?.trim()) {
-    throw new Error('Song ID is required');
-  }
-
-  const exists = await songRepo.songExists(id);
-  if (!exists) {
-    throw new Error('Song not found');
-  }
-
-  return songRepo.deleteSong(id);
-};
-
-export const getSongStats = async () => {
-  const totalSongs = await songRepo.countSongs();
-  const popularSongs = await songRepo.getPopularSongs(5);
-
-  return {
-    total: totalSongs,
-    popular: popularSongs
+  async getAllSongs (): Promise<Song[]> {
+    return this.songsRepo.getAllSongs();
   };
-};
+
+  async getSongsByAlbumId (albumId: string): Promise<Song[]> {
+    if (!albumId) {
+      logger.error('Album ID is missing or empty');
+      throw new Error('Album ID is required');
+    }
+
+    return this.songsRepo.getSongsByAlbumId(albumId);
+  };
+
+  async updateSong (
+    id: string,
+    input: Prisma.SongUpdateInput
+  ): Promise<Song> {
+    if (!id) {
+      logger.error('Song ID is missing or empty');
+      throw new Error('Song ID is required');
+    }
+
+    // Check if song exists
+    const exists = await this.songsRepo.songExists(id);
+    if (!exists) {
+      logger.error(`Song with ID ${id} does not exist`);
+      throw new Error('Song not found');
+    }
+
+    // Validate title if provided
+    if (input.title !== undefined && !input.title) {
+      logger.error(`Invalid song title for ID ${id}`);
+      throw new Error('Song title cannot be empty');
+    }
+
+    // Validate duration if provided
+    if (input.duration_seconds !== undefined && input.duration_seconds <= 0) {
+      logger.error(`Invalid duration for song ID ${id}`);
+      throw new Error('Song duration must be greater than 0');
+    }
+
+    const updateData: Prisma.SongUpdateInput = {
+      ...(input.title && { title: input.title }),
+      ...(input.duration_seconds && { duration_seconds: input.duration_seconds }),
+      ...(input.album_id !== undefined && { album_id: input.album_id }),
+      ...(input.audio_url !== undefined && { audio_url: input.audio_url }),
+      ...(input.preview_url !== undefined && { preview_url: input.preview_url }),
+      ...(input.genres && { genres: input.genres }),
+      ...(input.release_date && { release_date: input.release_date }),
+      updated_at: new Date()
+    };
+
+    return this.songsRepo.updateSong(id, updateData);
+  };
+
+  async deleteSong (
+    id: string
+  ): Promise<Song> {
+    if (!id) {
+      logger.error('Song ID is missing or empty');
+      throw new Error('Song ID is required');
+    }
+
+    const exists = await this.songsRepo.songExists(id);
+    if (!exists) {
+      logger.error(`Song with ID ${id} does not exist`);
+      throw new Error('Song not found');
+    }
+
+    return this.songsRepo.deleteSong(id);
+  };
+}

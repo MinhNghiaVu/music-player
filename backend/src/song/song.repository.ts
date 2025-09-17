@@ -1,116 +1,66 @@
+import {
+  Injectable
+} from '@nestjs/common'
+
 import { prisma } from '../database/client';
 import type { Song, Prisma } from '@prisma/client';
 
-// ========== CREATE ==========
-export const createSong = async (data: Prisma.SongCreateInput): Promise<Song> => {
-  return prisma.song.create({ data });
-};
+@Injectable()
+export class SongsRepo {
+  // ========== CREATE ==========
+  async createSong (
+    data: Prisma.SongCreateInput
+  ): Promise<Song> {
+    return prisma.song.create({ data });
+  }
 
-// ========== READ ==========
-export const getSongById = async (id: string): Promise<Song | null> => {
-  return prisma.song.findUnique({ where: { id } });
-};
+  // ========== READ ==========
+  async getSongById (
+    id: string
+  ): Promise<Song | null> {
+    return prisma.song.findUnique({ where: { id } });
+  }
 
-export const getSongWithDetails = async (id: string) => {
-  return prisma.song.findUnique({
-    where: { id },
-    include: {
-      // album: true,
-      song_artists: {
-        include: { artist: true }
-      }
-    }
-  });
-};
+  async getAllSongs (): Promise<Song[]> {
+    return prisma.song.findMany({
+      orderBy: { created_at: 'desc' }
+    });
+  }
 
-// export const getSongsByAlbum = async (albumId: string): Promise<Song[]> => {
-//   return prisma.song.findMany({
-//     where: { album_id: albumId },
-//     orderBy: [
-//       { disc_number: 'asc' },
-//       { song_number: 'asc' }
-//     ]
-//   });
-// };
+  async getSongsByAlbumId (albumId: string): Promise<Song[]> {
+    return prisma.song.findMany({
+      where: { album_id: albumId },
+      orderBy: { created_at: 'asc' }
+    });
+  }
 
-// export const searchSongs = async (query: string): Promise<Song[]> => {
-//   return prisma.song.findMany({
-//     where: {
-//       title: { contains: query, mode: 'insensitive' }
-//     },
-//     include: {
-//       album: true,
-//       song_artists: { include: { artist: true } }
-//     },
-//     take: 50
-//   });
-// };
+  // ========== UPDATE ==========
+  async updateSong (
+    id: string, 
+    data: Prisma.SongUpdateInput
+  ): Promise<Song> {
+    return prisma.song.update({
+      where: { id },
+      data
+    });
+  };
 
-// export const getPopularSongs = async (limit: number = 20): Promise<Song[]> => {
-//   return prisma.song.findMany({
-//     orderBy: { play_count: 'desc' },
-//     take: limit,
-//     include: {
-//       album: true,
-//       song_artists: { include: { artist: true } }
-//     }
-//   });
-// };
+  // ========== DELETE ==========
+  async deleteSong (
+    id: string
+  ): Promise<Song> {
+    return prisma.song.delete({ where: { id } });
+  };
 
-// export const getSongsByGenre = async (genre: string): Promise<Song[]> => {
-//   return prisma.song.findMany({
-//     where: {
-//       genres: { has: genre }
-//     },
-//     include: {
-//       album: true,
-//       song_artists: { include: { artist: true } }
-//     },
-//     take: 20
-//   });
-// };
+  // ========== UTILITY ==========
+  async songExists (
+    id: string
+  ): Promise<boolean> {
+    const song = await prisma.song.findUnique({ where: { id } });
+    return song !== null;
+  };
 
-// ========== UPDATE ==========
-export const updateSong = async (
-  id: string, 
-  data: Prisma.SongUpdateInput
-): Promise<Song> => {
-  return prisma.song.update({
-    where: { id },
-    data
-  });
-};
-
-export const incrementPlayCount = async (id: string): Promise<Song> => {
-  return prisma.song.update({
-    where: { id },
-    data: {
-      play_count: { increment: 1 }
-    }
-  });
-};
-
-// ========== DELETE ==========
-export const deleteSong = async (id: string): Promise<Song> => {
-  return prisma.song.delete({ where: { id } });
-};
-
-// ========== UTILITY ==========
-export const songExists = async (id: string): Promise<boolean> => {
-  const song = await prisma.song.findUnique({ where: { id } });
-  return song !== null;
-};
-
-export const countSongs = async (): Promise<number> => {
-  return prisma.song.count();
-};
-
-export const songRepo = {
-  createSong,
-  getSongById,
-  getSongWithDetails,
-  updateSong,
-  deleteSong,
-  songExists,
-  countSongs
+  async countSongs (): Promise<number> {
+    return prisma.song.count();
+  };
 }
