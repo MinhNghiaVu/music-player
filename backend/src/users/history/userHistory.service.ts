@@ -10,7 +10,6 @@ export class UserHistoryService {
   async createListeningHistory(
     input: Prisma.ListeningHistoryCreateInput
   ): Promise<ListeningHistory> {
-    // Basic validation
     if (!input.user_id) {
       logger.error(`User ID is missing in input ${JSON.stringify(input)}`);
       throw new Error('User ID is required');
@@ -32,7 +31,6 @@ export class UserHistoryService {
     };
 
     logger.info(`Creating listening history with data: ${JSON.stringify(historyData)}`);
-
     return this.userHistoryRepo.createListeningHistory(historyData);
   };
 
@@ -47,43 +45,8 @@ export class UserHistoryService {
     return this.userHistoryRepo.getListeningHistoryById(id);
   };
 
-  async getListeningHistoryByUserId (
-    userId: string
-  ): Promise<ListeningHistory[]> {
-    if (!userId) {
-      logger.error('User ID is missing or empty');
-      throw new Error('User ID is required');
-    }
-
-    return this.userHistoryRepo.getListeningHistoryByUserId(userId);
-  };
-
-  async getListeningHistoryBySongId (
-    songId: string
-  ): Promise<ListeningHistory[]> {
-    if (!songId) {
-      logger.error('Song ID is missing or empty');
-      throw new Error('Song ID is required');
-    }
-
-    return this.userHistoryRepo.getListeningHistoryBySongId(songId);
-  };
-
-  async getRecentListeningHistory (
-    userId: string,
-    limit: number = 50
-  ): Promise<ListeningHistory[]> {
-    if (!userId) {
-      logger.error('User ID is missing or empty');
-      throw new Error('User ID is required');
-    }
-
-    if (limit <= 0 || limit > 1000) {
-      logger.error(`Invalid limit ${limit} for recent listening history`);
-      throw new Error('Limit must be between 1 and 1000');
-    }
-
-    return this.userHistoryRepo.getRecentListeningHistory(userId, limit);
+  async getAllListeningHistory (): Promise<ListeningHistory[]> {
+    return this.userHistoryRepo.getAllListeningHistory();
   };
 
   async updateListeningHistory (
@@ -95,7 +58,6 @@ export class UserHistoryService {
       throw new Error('Listening history ID is required');
     }
 
-    // Check if listening history exists
     const exists = await this.userHistoryRepo.listeningHistoryExists(id);
     if (!exists) {
       logger.error(`Listening history with ID ${id} does not exist`);
@@ -120,16 +82,5 @@ export class UserHistoryService {
     }
 
     return this.userHistoryRepo.deleteListeningHistory(id);
-  };
-
-  async deleteListeningHistoryByUserId (
-    userId: string
-  ): Promise<{ count: number }> {
-    if (!userId) {
-      logger.error('User ID is missing or empty');
-      throw new Error('User ID is required');
-    }
-
-    return this.userHistoryRepo.deleteListeningHistoryByUserId(userId);
   };
 }

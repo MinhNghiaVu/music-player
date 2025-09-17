@@ -34,27 +34,9 @@ export class AlbumArtistsController {
     return this.albumArtistsService.getAlbumArtistById(id);
   }
 
-  @Get('album/:albumId') // GET /album-artists/album/:albumId
-  async getAlbumArtistsByAlbumId (
-    @Param('albumId') albumId: string
-  ): Promise<AlbumArtist[]> {
-    return this.albumArtistsService.getAlbumArtistsByAlbumId(albumId);
-  }
-
-  @Get('artist/:artistId') // GET /album-artists/artist/:artistId
-  async getAlbumArtistsByArtistId (
-    @Param('artistId') artistId: string
-  ): Promise<AlbumArtist[]> {
-    return this.albumArtistsService.getAlbumArtistsByArtistId(artistId);
-  }
-
-  @Get('album/:albumId/artist/:artistId') // GET /album-artists/album/:albumId/artist/:artistId?role=primary
-  async getAlbumArtistByAlbumAndArtist (
-    @Param('albumId') albumId: string,
-    @Param('artistId') artistId: string,
-    @Param('role') role?: string
-  ): Promise<AlbumArtist | null> {
-    return this.albumArtistsService.getAlbumArtistByAlbumAndArtist(albumId, artistId, role || 'primary');
+  @Get() // GET /album-artists
+  async getAllAlbumArtists(): Promise<AlbumArtist[]> {
+    return this.albumArtistsService.getAllAlbumArtists();
   }
 
   @Patch(':id') // PATCH /album-artists/:id
@@ -71,15 +53,5 @@ export class AlbumArtistsController {
     @Param('id') id: string
   ): Promise<AlbumArtist> {
     return this.albumArtistsService.deleteAlbumArtist(id);
-  }
-
-  @Delete('album/:albumId/artist/:artistId') // DELETE /album-artists/album/:albumId/artist/:artistId?role=primary
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteAlbumArtistByAlbumAndArtist (
-    @Param('albumId') albumId: string,
-    @Param('artistId') artistId: string,
-    @Param('role') role?: string
-  ): Promise<AlbumArtist> {
-    return this.albumArtistsService.deleteAlbumArtistByAlbumAndArtist(albumId, artistId, role || 'primary');
   }
 }

@@ -10,7 +10,6 @@ export class SongsService {
   async createSong(
     input: Prisma.SongCreateInput
   ): Promise<Song> {
-    // Basic validation
     if (!input.title) {
       logger.error(`Song title is missing in input ${JSON.stringify(input)}`);
       throw new Error('Song title is required');
@@ -32,7 +31,6 @@ export class SongsService {
     };
 
     logger.info(`Creating song with data: ${JSON.stringify(songData)}`);
-
     return this.songsRepo.createSong(songData);
   };
 
@@ -51,15 +49,6 @@ export class SongsService {
     return this.songsRepo.getAllSongs();
   };
 
-  async getSongsByAlbumId (albumId: string): Promise<Song[]> {
-    if (!albumId) {
-      logger.error('Album ID is missing or empty');
-      throw new Error('Album ID is required');
-    }
-
-    return this.songsRepo.getSongsByAlbumId(albumId);
-  };
-
   async updateSong (
     id: string,
     input: Prisma.SongUpdateInput
@@ -69,33 +58,24 @@ export class SongsService {
       throw new Error('Song ID is required');
     }
 
-    // Check if song exists
     const exists = await this.songsRepo.songExists(id);
     if (!exists) {
       logger.error(`Song with ID ${id} does not exist`);
       throw new Error('Song not found');
     }
 
-    // Validate title if provided
     if (input.title !== undefined && !input.title) {
       logger.error(`Invalid song title for ID ${id}`);
       throw new Error('Song title cannot be empty');
     }
 
-    // Validate duration if provided
     if (input.duration_seconds !== undefined && input.duration_seconds <= 0) {
       logger.error(`Invalid duration for song ID ${id}`);
       throw new Error('Song duration must be greater than 0');
     }
 
     const updateData: Prisma.SongUpdateInput = {
-      ...(input.title && { title: input.title }),
-      ...(input.duration_seconds && { duration_seconds: input.duration_seconds }),
-      ...(input.album_id !== undefined && { album_id: input.album_id }),
-      ...(input.audio_url !== undefined && { audio_url: input.audio_url }),
-      ...(input.preview_url !== undefined && { preview_url: input.preview_url }),
-      ...(input.genres && { genres: input.genres }),
-      ...(input.release_date && { release_date: input.release_date }),
+      ...input,
       updated_at: new Date()
     };
 

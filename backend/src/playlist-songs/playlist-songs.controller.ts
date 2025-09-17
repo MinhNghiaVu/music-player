@@ -34,18 +34,9 @@ export class PlaylistSongsController {
     return this.playlistSongsService.getPlaylistSongById(id);
   }
 
-  @Get('playlist/:playlistId') // GET /playlist-songs/playlist/:playlistId
-  async getPlaylistSongsByPlaylistId (
-    @Param('playlistId') playlistId: string
-  ): Promise<PlaylistSong[]> {
-    return this.playlistSongsService.getPlaylistSongsByPlaylistId(playlistId);
-  }
-
-  @Get('song/:songId') // GET /playlist-songs/song/:songId
-  async getPlaylistSongsBySongId (
-    @Param('songId') songId: string
-  ): Promise<PlaylistSong[]> {
-    return this.playlistSongsService.getPlaylistSongsBySongId(songId);
+  @Get() // GET /playlist-songs
+  async getAllPlaylistSongs(): Promise<PlaylistSong[]> {
+    return this.playlistSongsService.getAllPlaylistSongs();
   }
 
   @Patch(':id') // PATCH /playlist-songs/:id

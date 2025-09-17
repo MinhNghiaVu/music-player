@@ -34,28 +34,9 @@ export class UserLikesController {
     return this.userLikesService.getUserLikeById(id);
   }
 
-  @Get('user/:userId') // GET /user-likes/user/:userId
-  async getUserLikesByUserId (
-    @Param('userId') userId: string
-  ): Promise<UserLike[]> {
-    return this.userLikesService.getUserLikesByUserId(userId);
-  }
-
-  @Get('user/:userId/type/:type') // GET /user-likes/user/:userId/type/:type
-  async getUserLikesByType (
-    @Param('userId') userId: string,
-    @Param('type') type: string
-  ): Promise<UserLike[]> {
-    return this.userLikesService.getUserLikesByType(userId, type);
-  }
-
-  @Get('user/:userId/item/:type/:itemId') // GET /user-likes/user/:userId/item/:type/:itemId
-  async getUserLikeByUserAndItem (
-    @Param('userId') userId: string,
-    @Param('type') type: string,
-    @Param('itemId') itemId: string
-  ): Promise<UserLike | null> {
-    return this.userLikesService.getUserLikeByUserAndItem(userId, type, itemId);
+  @Get() // GET /user-likes
+  async getAllUserLikes(): Promise<UserLike[]> {
+    return this.userLikesService.getAllUserLikes();
   }
 
   @Patch(':id') // PATCH /user-likes/:id
@@ -72,15 +53,5 @@ export class UserLikesController {
     @Param('id') id: string
   ): Promise<UserLike> {
     return this.userLikesService.deleteUserLike(id);
-  }
-
-  @Delete('user/:userId/item/:type/:itemId') // DELETE /user-likes/user/:userId/item/:type/:itemId
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteUserLikeByUserAndItem (
-    @Param('userId') userId: string,
-    @Param('type') type: string,
-    @Param('itemId') itemId: string
-  ): Promise<UserLike> {
-    return this.userLikesService.deleteUserLikeByUserAndItem(userId, type, itemId);
   }
 }

@@ -27,20 +27,6 @@ export class PlaylistsRepo {
     });
   }
 
-  async getPlaylistsByUserId (userId: string): Promise<Playlist[]> {
-    return prisma.playlist.findMany({
-      where: { user_id: userId },
-      orderBy: { created_at: 'desc' }
-    });
-  }
-
-  async getPublicPlaylists (): Promise<Playlist[]> {
-    return prisma.playlist.findMany({
-      where: { is_public: true },
-      orderBy: { created_at: 'desc' }
-    });
-  }
-
   // ========== UPDATE ==========
   async updatePlaylist (
     id: string, 
@@ -65,9 +51,5 @@ export class PlaylistsRepo {
   ): Promise<boolean> {
     const playlist = await prisma.playlist.findUnique({ where: { id } });
     return playlist !== null;
-  };
-
-  async countPlaylists (): Promise<number> {
-    return prisma.playlist.count();
   };
 }

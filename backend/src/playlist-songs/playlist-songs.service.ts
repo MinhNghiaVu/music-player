@@ -10,7 +10,6 @@ export class PlaylistSongsService {
   async createPlaylistSong(
     input: Prisma.PlaylistSongCreateInput
   ): Promise<PlaylistSong> {
-    // Basic validation
     if (!input.playlist_id) {
       logger.error(`Playlist ID is missing in input ${JSON.stringify(input)}`);
       throw new Error('Playlist ID is required');
@@ -34,7 +33,6 @@ export class PlaylistSongsService {
     };
 
     logger.info(`Creating playlist song with data: ${JSON.stringify(playlistSongData)}`);
-
     return this.playlistSongsRepo.createPlaylistSong(playlistSongData);
   };
 
@@ -49,26 +47,8 @@ export class PlaylistSongsService {
     return this.playlistSongsRepo.getPlaylistSongById(id);
   };
 
-  async getPlaylistSongsByPlaylistId (
-    playlistId: string
-  ): Promise<PlaylistSong[]> {
-    if (!playlistId) {
-      logger.error('Playlist ID is missing or empty');
-      throw new Error('Playlist ID is required');
-    }
-
-    return this.playlistSongsRepo.getPlaylistSongsByPlaylistId(playlistId);
-  };
-
-  async getPlaylistSongsBySongId (
-    songId: string
-  ): Promise<PlaylistSong[]> {
-    if (!songId) {
-      logger.error('Song ID is missing or empty');
-      throw new Error('Song ID is required');
-    }
-
-    return this.playlistSongsRepo.getPlaylistSongsBySongId(songId);
+  async getAllPlaylistSongs (): Promise<PlaylistSong[]> {
+    return this.playlistSongsRepo.getAllPlaylistSongs();
   };
 
   async updatePlaylistSong (
@@ -80,7 +60,6 @@ export class PlaylistSongsService {
       throw new Error('Playlist song ID is required');
     }
 
-    // Check if playlist song exists
     const exists = await this.playlistSongsRepo.playlistSongExists(id);
     if (!exists) {
       logger.error(`Playlist song with ID ${id} does not exist`);

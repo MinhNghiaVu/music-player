@@ -10,7 +10,6 @@ export class SearchQueriesService {
   async createSearchQuery(
     input: Prisma.SearchQueryCreateInput
   ): Promise<SearchQuery> {
-    // Basic validation
     if (!input.query_text) {
       logger.error(`Query text is missing in input ${JSON.stringify(input)}`);
       throw new Error('Query text is required');
@@ -24,7 +23,6 @@ export class SearchQueriesService {
     };
 
     logger.info(`Creating search query with data: ${JSON.stringify(searchQueryData)}`);
-
     return this.searchQueriesRepo.createSearchQuery(searchQueryData);
   };
 
@@ -39,26 +37,8 @@ export class SearchQueriesService {
     return this.searchQueriesRepo.getSearchQueryById(id);
   };
 
-  async getSearchQueriesByUserId (
-    userId: string
-  ): Promise<SearchQuery[]> {
-    if (!userId) {
-      logger.error('User ID is missing or empty');
-      throw new Error('User ID is required');
-    }
-
-    return this.searchQueriesRepo.getSearchQueriesByUserId(userId);
-  };
-
-  async getRecentSearchQueries (
-    limit: number = 100
-  ): Promise<SearchQuery[]> {
-    if (limit <= 0 || limit > 1000) {
-      logger.error(`Invalid limit ${limit} for recent search queries`);
-      throw new Error('Limit must be between 1 and 1000');
-    }
-
-    return this.searchQueriesRepo.getRecentSearchQueries(limit);
+  async getAllSearchQueries (): Promise<SearchQuery[]> {
+    return this.searchQueriesRepo.getAllSearchQueries();
   };
 
   async updateSearchQuery (
@@ -70,7 +50,6 @@ export class SearchQueriesService {
       throw new Error('Search query ID is required');
     }
 
-    // Check if search query exists
     const exists = await this.searchQueriesRepo.searchQueryExists(id);
     if (!exists) {
       logger.error(`Search query with ID ${id} does not exist`);

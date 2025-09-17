@@ -10,17 +10,9 @@ export class UserPreferencesService {
   async createUserPreferences(
     input: Prisma.UserPreferencesCreateInput
   ): Promise<UserPreferences> {
-    // Basic validation
     if (!input.user_id) {
       logger.error(`User ID is missing in input ${JSON.stringify(input)}`);
       throw new Error('User ID is required');
-    }
-
-    // Check if user preferences already exist
-    const exists = await this.userPreferencesRepo.userPreferencesExistsByUserId(input.user_id);
-    if (exists) {
-      logger.error(`User preferences already exist for user ${input.user_id}`);
-      throw new Error('User preferences already exist');
     }
 
     const userPreferencesData: Prisma.UserPreferencesCreateInput = {
@@ -35,7 +27,6 @@ export class UserPreferencesService {
     };
 
     logger.info(`Creating user preferences with data: ${JSON.stringify(userPreferencesData)}`);
-
     return this.userPreferencesRepo.createUserPreferences(userPreferencesData);
   };
 
@@ -50,15 +41,8 @@ export class UserPreferencesService {
     return this.userPreferencesRepo.getUserPreferencesById(id);
   };
 
-  async getUserPreferencesByUserId (
-    userId: string
-  ): Promise<UserPreferences | null> {
-    if (!userId) {
-      logger.error('User ID is missing or empty');
-      throw new Error('User ID is required');
-    }
-
-    return this.userPreferencesRepo.getUserPreferencesByUserId(userId);
+  async getAllUserPreferences (): Promise<UserPreferences[]> {
+    return this.userPreferencesRepo.getAllUserPreferences();
   };
 
   async updateUserPreferences (
@@ -70,7 +54,6 @@ export class UserPreferencesService {
       throw new Error('User preferences ID is required');
     }
 
-    // Check if user preferences exist
     const exists = await this.userPreferencesRepo.userPreferencesExists(id);
     if (!exists) {
       logger.error(`User preferences with ID ${id} does not exist`);
@@ -83,30 +66,6 @@ export class UserPreferencesService {
     };
 
     return this.userPreferencesRepo.updateUserPreferences(id, updateData);
-  };
-
-  async updateUserPreferencesByUserId (
-    userId: string,
-    input: Prisma.UserPreferencesUpdateInput
-  ): Promise<UserPreferences> {
-    if (!userId) {
-      logger.error('User ID is missing or empty');
-      throw new Error('User ID is required');
-    }
-
-    // Check if user preferences exist
-    const exists = await this.userPreferencesRepo.userPreferencesExistsByUserId(userId);
-    if (!exists) {
-      logger.error(`User preferences for user ${userId} do not exist`);
-      throw new Error('User preferences not found');
-    }
-
-    const updateData: Prisma.UserPreferencesUpdateInput = {
-      ...input,
-      updated_at: new Date()
-    };
-
-    return this.userPreferencesRepo.updateUserPreferencesByUserId(userId, updateData);
   };
 
   async deleteUserPreferences (
@@ -124,22 +83,5 @@ export class UserPreferencesService {
     }
 
     return this.userPreferencesRepo.deleteUserPreferences(id);
-  };
-
-  async deleteUserPreferencesByUserId (
-    userId: string
-  ): Promise<UserPreferences> {
-    if (!userId) {
-      logger.error('User ID is missing or empty');
-      throw new Error('User ID is required');
-    }
-
-    const exists = await this.userPreferencesRepo.userPreferencesExistsByUserId(userId);
-    if (!exists) {
-      logger.error(`User preferences for user ${userId} do not exist`);
-      throw new Error('User preferences not found');
-    }
-
-    return this.userPreferencesRepo.deleteUserPreferencesByUserId(userId);
   };
 }

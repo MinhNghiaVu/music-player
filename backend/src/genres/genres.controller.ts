@@ -34,28 +34,9 @@ export class GenresController {
     return this.genresService.getGenreById(id);
   }
 
-  @Get('name/:name') // GET /genres/name/:name
-  async getGenreByName (
-    @Param('name') name: string
-  ): Promise<Genre | null> {
-    return this.genresService.getGenreByName(name);
-  }
-
   @Get() // GET /genres
   async getAllGenres(): Promise<Genre[]> {
     return this.genresService.getAllGenres();
-  }
-
-  @Get('parents/all') // GET /genres/parents/all
-  async getParentGenres(): Promise<Genre[]> {
-    return this.genresService.getParentGenres();
-  }
-
-  @Get('parent/:parentId/subgenres') // GET /genres/parent/:parentId/subgenres
-  async getSubGenresByParentId (
-    @Param('parentId') parentId: string
-  ): Promise<Genre[]> {
-    return this.genresService.getSubGenresByParentId(parentId);
   }
 
   @Patch(':id') // PATCH /genres/:id

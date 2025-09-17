@@ -39,18 +39,6 @@ export class PlaylistsController {
     return this.playlistsService.getAllPlaylists();
   }
 
-  @Get('user/:userId') // GET /playlists/user/:userId
-  async getPlaylistsByUserId (
-    @Param('userId') userId: string
-  ): Promise<Playlist[]> {
-    return this.playlistsService.getPlaylistsByUserId(userId);
-  }
-
-  @Get('public/all') // GET /playlists/public/all
-  async getPublicPlaylists(): Promise<Playlist[]> {
-    return this.playlistsService.getPublicPlaylists();
-  }
-
   @Patch(':id') // PATCH /playlists/:id
   async updatePlaylist (
     @Param('id') id: string,

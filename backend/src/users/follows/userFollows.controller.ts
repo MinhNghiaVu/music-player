@@ -34,28 +34,9 @@ export class UserFollowsController {
     return this.userFollowsService.getUserFollowById(id);
   }
 
-  @Get('follower/:followerId') // GET /user-follows/follower/:followerId
-  async getUserFollowsByFollowerId (
-    @Param('followerId') followerId: string
-  ): Promise<UserFollow[]> {
-    return this.userFollowsService.getUserFollowsByFollowerId(followerId);
-  }
-
-  @Get('followable/:type/:followableId') // GET /user-follows/followable/:type/:followableId
-  async getUserFollowsByFollowableId (
-    @Param('type') type: string,
-    @Param('followableId') followableId: string
-  ): Promise<UserFollow[]> {
-    return this.userFollowsService.getUserFollowsByFollowableId(type, followableId);
-  }
-
-  @Get('follower/:followerId/followable/:type/:followableId') // GET /user-follows/follower/:followerId/followable/:type/:followableId
-  async getUserFollowByFollowerAndFollowable (
-    @Param('followerId') followerId: string,
-    @Param('type') type: string,
-    @Param('followableId') followableId: string
-  ): Promise<UserFollow | null> {
-    return this.userFollowsService.getUserFollowByFollowerAndFollowable(followerId, type, followableId);
+  @Get() // GET /user-follows
+  async getAllUserFollows(): Promise<UserFollow[]> {
+    return this.userFollowsService.getAllUserFollows();
   }
 
   @Patch(':id') // PATCH /user-follows/:id
@@ -72,15 +53,5 @@ export class UserFollowsController {
     @Param('id') id: string
   ): Promise<UserFollow> {
     return this.userFollowsService.deleteUserFollow(id);
-  }
-
-  @Delete('follower/:followerId/followable/:type/:followableId') // DELETE /user-follows/follower/:followerId/followable/:type/:followableId
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteUserFollowByFollowerAndFollowable (
-    @Param('followerId') followerId: string,
-    @Param('type') type: string,
-    @Param('followableId') followableId: string
-  ): Promise<UserFollow> {
-    return this.userFollowsService.deleteUserFollowByFollowerAndFollowable(followerId, type, followableId);
   }
 }

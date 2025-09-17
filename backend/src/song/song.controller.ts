@@ -39,13 +39,6 @@ export class SongController {
     return this.songsService.getAllSongs();
   }
 
-  @Get('album/:albumId') // GET /songs/album/:albumId
-  async getSongsByAlbumId (
-    @Param('albumId') albumId: string
-  ): Promise<Song[]> {
-    return this.songsService.getSongsByAlbumId(albumId);
-  }
-
   @Patch(':id') // PATCH /songs/:id
   async updateSong (
     @Param('id') id: string,

@@ -27,13 +27,6 @@ export class SongsRepo {
     });
   }
 
-  async getSongsByAlbumId (albumId: string): Promise<Song[]> {
-    return prisma.song.findMany({
-      where: { album_id: albumId },
-      orderBy: { created_at: 'asc' }
-    });
-  }
-
   // ========== UPDATE ==========
   async updateSong (
     id: string, 
@@ -58,9 +51,5 @@ export class SongsRepo {
   ): Promise<boolean> {
     const song = await prisma.song.findUnique({ where: { id } });
     return song !== null;
-  };
-
-  async countSongs (): Promise<number> {
-    return prisma.song.count();
   };
 }

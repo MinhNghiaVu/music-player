@@ -10,7 +10,6 @@ export class UserFollowsService {
   async createUserFollow(
     input: Prisma.UserFollowCreateInput
   ): Promise<UserFollow> {
-    // Basic validation
     if (!input.follower_id) {
       logger.error(`Follower ID is missing in input ${JSON.stringify(input)}`);
       throw new Error('Follower ID is required');
@@ -26,17 +25,6 @@ export class UserFollowsService {
       throw new Error('Followable ID is required');
     }
 
-    // Check if follow already exists
-    const exists = await this.userFollowsRepo.userFollowExistsByFollowerAndFollowable(
-      input.follower_id,
-      input.followable_type,
-      input.followable_id
-    );
-    if (exists) {
-      logger.error(`User follow already exists for follower ${input.follower_id}, type ${input.followable_type}, id ${input.followable_id}`);
-      throw new Error('User follow already exists');
-    }
-
     const userFollowData: Prisma.UserFollowCreateInput = {
       follower_id: input.follower_id,
       followable_type: input.followable_type,
@@ -44,7 +32,6 @@ export class UserFollowsService {
     };
 
     logger.info(`Creating user follow with data: ${JSON.stringify(userFollowData)}`);
-
     return this.userFollowsRepo.createUserFollow(userFollowData);
   };
 
@@ -59,55 +46,8 @@ export class UserFollowsService {
     return this.userFollowsRepo.getUserFollowById(id);
   };
 
-  async getUserFollowsByFollowerId (
-    followerId: string
-  ): Promise<UserFollow[]> {
-    if (!followerId) {
-      logger.error('Follower ID is missing or empty');
-      throw new Error('Follower ID is required');
-    }
-
-    return this.userFollowsRepo.getUserFollowsByFollowerId(followerId);
-  };
-
-  async getUserFollowsByFollowableId (
-    followableType: string,
-    followableId: string
-  ): Promise<UserFollow[]> {
-    if (!followableType) {
-      logger.error('Followable type is missing or empty');
-      throw new Error('Followable type is required');
-    }
-
-    if (!followableId) {
-      logger.error('Followable ID is missing or empty');
-      throw new Error('Followable ID is required');
-    }
-
-    return this.userFollowsRepo.getUserFollowsByFollowableId(followableType, followableId);
-  };
-
-  async getUserFollowByFollowerAndFollowable (
-    followerId: string,
-    followableType: string,
-    followableId: string
-  ): Promise<UserFollow | null> {
-    if (!followerId) {
-      logger.error('Follower ID is missing or empty');
-      throw new Error('Follower ID is required');
-    }
-
-    if (!followableType) {
-      logger.error('Followable type is missing or empty');
-      throw new Error('Followable type is required');
-    }
-
-    if (!followableId) {
-      logger.error('Followable ID is missing or empty');
-      throw new Error('Followable ID is required');
-    }
-
-    return this.userFollowsRepo.getUserFollowByFollowerAndFollowable(followerId, followableType, followableId);
+  async getAllUserFollows (): Promise<UserFollow[]> {
+    return this.userFollowsRepo.getAllUserFollows();
   };
 
   async updateUserFollow (
@@ -119,7 +59,6 @@ export class UserFollowsService {
       throw new Error('User follow ID is required');
     }
 
-    // Check if user follow exists
     const exists = await this.userFollowsRepo.userFollowExists(id);
     if (!exists) {
       logger.error(`User follow with ID ${id} does not exist`);
@@ -144,34 +83,5 @@ export class UserFollowsService {
     }
 
     return this.userFollowsRepo.deleteUserFollow(id);
-  };
-
-  async deleteUserFollowByFollowerAndFollowable (
-    followerId: string,
-    followableType: string,
-    followableId: string
-  ): Promise<UserFollow> {
-    if (!followerId) {
-      logger.error('Follower ID is missing or empty');
-      throw new Error('Follower ID is required');
-    }
-
-    if (!followableType) {
-      logger.error('Followable type is missing or empty');
-      throw new Error('Followable type is required');
-    }
-
-    if (!followableId) {
-      logger.error('Followable ID is missing or empty');
-      throw new Error('Followable ID is required');
-    }
-
-    const exists = await this.userFollowsRepo.userFollowExistsByFollowerAndFollowable(followerId, followableType, followableId);
-    if (!exists) {
-      logger.error(`User follow does not exist for follower ${followerId}, type ${followableType}, id ${followableId}`);
-      throw new Error('User follow not found');
-    }
-
-    return this.userFollowsRepo.deleteUserFollowByFollowerAndFollowable(followerId, followableType, followableId);
   };
 }

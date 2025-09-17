@@ -21,18 +21,6 @@ export class UsersRepo {
     return prisma.user.findUnique({ where: { id } });
   }
 
-  async getUserByEmail (
-    email: string
-  ): Promise<User | null> {
-    return prisma.user.findUnique({ where: { email } });
-  }
-
-  async getUserByUsername (
-    username: string
-  ): Promise<User | null> {
-    return prisma.user.findUnique({ where: { username } });
-  }
-
   async getAllUsers (): Promise<User[]> {
     return prisma.user.findMany({
       orderBy: { created_at: 'desc' }
@@ -63,23 +51,5 @@ export class UsersRepo {
   ): Promise<boolean> {
     const user = await prisma.user.findUnique({ where: { id } });
     return user !== null;
-  };
-
-  async emailExists (
-    email: string
-  ): Promise<boolean> {
-    const user = await prisma.user.findUnique({ where: { email } });
-    return user !== null;
-  };
-
-  async usernameExists (
-    username: string
-  ): Promise<boolean> {
-    const user = await prisma.user.findUnique({ where: { username } });
-    return user !== null;
-  };
-
-  async countUsers (): Promise<number> {
-    return prisma.user.count();
   };
 }

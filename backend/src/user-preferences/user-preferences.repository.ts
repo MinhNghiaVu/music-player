@@ -18,22 +18,12 @@ export class UserPreferencesRepo {
   async getUserPreferencesById (
     id: string
   ): Promise<UserPreferences | null> {
-    return prisma.userPreferences.findUnique({ 
-      where: { id },
-      include: {
-        user: true
-      }
-    });
+    return prisma.userPreferences.findUnique({ where: { id } });
   }
 
-  async getUserPreferencesByUserId (
-    userId: string
-  ): Promise<UserPreferences | null> {
-    return prisma.userPreferences.findUnique({ 
-      where: { user_id: userId },
-      include: {
-        user: true
-      }
+  async getAllUserPreferences (): Promise<UserPreferences[]> {
+    return prisma.userPreferences.findMany({
+      orderBy: { created_at: 'desc' }
     });
   }
 
@@ -48,27 +38,11 @@ export class UserPreferencesRepo {
     });
   };
 
-  async updateUserPreferencesByUserId (
-    userId: string, 
-    data: Prisma.UserPreferencesUpdateInput
-  ): Promise<UserPreferences> {
-    return prisma.userPreferences.update({
-      where: { user_id: userId },
-      data
-    });
-  };
-
   // ========== DELETE ==========
   async deleteUserPreferences (
     id: string
   ): Promise<UserPreferences> {
     return prisma.userPreferences.delete({ where: { id } });
-  };
-
-  async deleteUserPreferencesByUserId (
-    userId: string
-  ): Promise<UserPreferences> {
-    return prisma.userPreferences.delete({ where: { user_id: userId } });
   };
 
   // ========== UTILITY ==========
@@ -77,16 +51,5 @@ export class UserPreferencesRepo {
   ): Promise<boolean> {
     const userPreferences = await prisma.userPreferences.findUnique({ where: { id } });
     return userPreferences !== null;
-  };
-
-  async userPreferencesExistsByUserId (
-    userId: string
-  ): Promise<boolean> {
-    const userPreferences = await prisma.userPreferences.findUnique({ where: { user_id: userId } });
-    return userPreferences !== null;
-  };
-
-  async countUserPreferences (): Promise<number> {
-    return prisma.userPreferences.count();
   };
 }

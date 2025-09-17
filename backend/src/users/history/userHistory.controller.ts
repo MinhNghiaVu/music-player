@@ -9,7 +9,6 @@ import {
   HttpCode,
   HttpStatus,
   ValidationPipe,
-  Query,
 } from '@nestjs/common';
 import { UserHistoryService } from "@/users/history/userHistory.service"
 import { CreateListeningHistoryDto } from "@/users/history/dto/create-listening-history.dto"
@@ -35,27 +34,9 @@ export class UserHistoryController {
     return this.userHistoryService.getListeningHistoryById(id);
   }
 
-  @Get('user/:userId') // GET /listening-history/user/:userId
-  async getListeningHistoryByUserId (
-    @Param('userId') userId: string
-  ): Promise<ListeningHistory[]> {
-    return this.userHistoryService.getListeningHistoryByUserId(userId);
-  }
-
-  @Get('user/:userId/recent') // GET /listening-history/user/:userId/recent?limit=50
-  async getRecentListeningHistory (
-    @Param('userId') userId: string,
-    @Query('limit') limit?: string
-  ): Promise<ListeningHistory[]> {
-    const limitNum = limit ? parseInt(limit, 10) : 50;
-    return this.userHistoryService.getRecentListeningHistory(userId, limitNum);
-  }
-
-  @Get('song/:songId') // GET /listening-history/song/:songId
-  async getListeningHistoryBySongId (
-    @Param('songId') songId: string
-  ): Promise<ListeningHistory[]> {
-    return this.userHistoryService.getListeningHistoryBySongId(songId);
+  @Get() // GET /listening-history
+  async getAllListeningHistory(): Promise<ListeningHistory[]> {
+    return this.userHistoryService.getAllListeningHistory();
   }
 
   @Patch(':id') // PATCH /listening-history/:id
@@ -72,13 +53,5 @@ export class UserHistoryController {
     @Param('id') id: string
   ): Promise<ListeningHistory> {
     return this.userHistoryService.deleteListeningHistory(id);
-  }
-
-  @Delete('user/:userId') // DELETE /listening-history/user/:userId
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteListeningHistoryByUserId (
-    @Param('userId') userId: string
-  ): Promise<{ count: number }> {
-    return this.userHistoryService.deleteListeningHistoryByUserId(userId);
   }
 }

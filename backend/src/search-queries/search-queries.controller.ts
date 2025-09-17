@@ -9,7 +9,6 @@ import {
   HttpCode,
   HttpStatus,
   ValidationPipe,
-  Query,
 } from '@nestjs/common';
 import { SearchQueriesService } from "@/search-queries/search-queries.service"
 import { CreateSearchQueryDto } from "@/search-queries/dto/create-search-query.dto"
@@ -35,19 +34,9 @@ export class SearchQueriesController {
     return this.searchQueriesService.getSearchQueryById(id);
   }
 
-  @Get('user/:userId') // GET /search-queries/user/:userId
-  async getSearchQueriesByUserId (
-    @Param('userId') userId: string
-  ): Promise<SearchQuery[]> {
-    return this.searchQueriesService.getSearchQueriesByUserId(userId);
-  }
-
-  @Get('recent/all') // GET /search-queries/recent/all?limit=100
-  async getRecentSearchQueries (
-    @Query('limit') limit?: string
-  ): Promise<SearchQuery[]> {
-    const limitNum = limit ? parseInt(limit, 10) : 100;
-    return this.searchQueriesService.getRecentSearchQueries(limitNum);
+  @Get() // GET /search-queries
+  async getAllSearchQueries(): Promise<SearchQuery[]> {
+    return this.searchQueriesService.getAllSearchQueries();
   }
 
   @Patch(':id') // PATCH /search-queries/:id

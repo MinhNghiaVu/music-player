@@ -34,20 +34,6 @@ export class UsersController {
     return this.usersService.getUserById(id);
   }
 
-  @Get('email/:email') // GET /users/email/:email
-  async getUserByEmail (
-    @Param('email') email: string
-  ): Promise<User | null> {
-    return this.usersService.getUserByEmail(email);
-  }
-
-  @Get('username/:username') // GET /users/username/:username
-  async getUserByUsername (
-    @Param('username') username: string
-  ): Promise<User | null> {
-    return this.usersService.getUserByUsername(username);
-  }
-
   @Get() // GET /users
   async getAllUsers(): Promise<User[]> {
     return this.usersService.getAllUsers();

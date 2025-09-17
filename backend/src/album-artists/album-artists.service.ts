@@ -10,7 +10,6 @@ export class AlbumArtistsService {
   async createAlbumArtist(
     input: Prisma.AlbumArtistCreateInput
   ): Promise<AlbumArtist> {
-    // Basic validation
     if (!input.album_id) {
       logger.error(`Album ID is missing in input ${JSON.stringify(input)}`);
       throw new Error('Album ID is required');
@@ -21,27 +20,13 @@ export class AlbumArtistsService {
       throw new Error('Artist ID is required');
     }
 
-    const role = input.role || 'primary';
-
-    // Check if album artist relationship already exists
-    const exists = await this.albumArtistsRepo.albumArtistExistsByAlbumAndArtist(
-      input.album_id,
-      input.artist_id,
-      role
-    );
-    if (exists) {
-      logger.error(`Album artist relationship already exists for album ${input.album_id}, artist ${input.artist_id}, role ${role}`);
-      throw new Error('Album artist relationship already exists');
-    }
-
     const albumArtistData: Prisma.AlbumArtistCreateInput = {
       album_id: input.album_id,
       artist_id: input.artist_id,
-      role: role,
+      role: input.role || 'primary',
     };
 
     logger.info(`Creating album artist relationship with data: ${JSON.stringify(albumArtistData)}`);
-
     return this.albumArtistsRepo.createAlbumArtist(albumArtistData);
   };
 
@@ -56,44 +41,8 @@ export class AlbumArtistsService {
     return this.albumArtistsRepo.getAlbumArtistById(id);
   };
 
-  async getAlbumArtistsByAlbumId (
-    albumId: string
-  ): Promise<AlbumArtist[]> {
-    if (!albumId) {
-      logger.error('Album ID is missing or empty');
-      throw new Error('Album ID is required');
-    }
-
-    return this.albumArtistsRepo.getAlbumArtistsByAlbumId(albumId);
-  };
-
-  async getAlbumArtistsByArtistId (
-    artistId: string
-  ): Promise<AlbumArtist[]> {
-    if (!artistId) {
-      logger.error('Artist ID is missing or empty');
-      throw new Error('Artist ID is required');
-    }
-
-    return this.albumArtistsRepo.getAlbumArtistsByArtistId(artistId);
-  };
-
-  async getAlbumArtistByAlbumAndArtist (
-    albumId: string,
-    artistId: string,
-    role: string = 'primary'
-  ): Promise<AlbumArtist | null> {
-    if (!albumId) {
-      logger.error('Album ID is missing or empty');
-      throw new Error('Album ID is required');
-    }
-
-    if (!artistId) {
-      logger.error('Artist ID is missing or empty');
-      throw new Error('Artist ID is required');
-    }
-
-    return this.albumArtistsRepo.getAlbumArtistByAlbumAndArtist(albumId, artistId, role);
+  async getAllAlbumArtists (): Promise<AlbumArtist[]> {
+    return this.albumArtistsRepo.getAllAlbumArtists();
   };
 
   async updateAlbumArtist (
@@ -105,7 +54,6 @@ export class AlbumArtistsService {
       throw new Error('Album artist ID is required');
     }
 
-    // Check if album artist relationship exists
     const exists = await this.albumArtistsRepo.albumArtistExists(id);
     if (!exists) {
       logger.error(`Album artist relationship with ID ${id} does not exist`);
@@ -130,29 +78,5 @@ export class AlbumArtistsService {
     }
 
     return this.albumArtistsRepo.deleteAlbumArtist(id);
-  };
-
-  async deleteAlbumArtistByAlbumAndArtist (
-    albumId: string,
-    artistId: string,
-    role: string = 'primary'
-  ): Promise<AlbumArtist> {
-    if (!albumId) {
-      logger.error('Album ID is missing or empty');
-      throw new Error('Album ID is required');
-    }
-
-    if (!artistId) {
-      logger.error('Artist ID is missing or empty');
-      throw new Error('Artist ID is required');
-    }
-
-    const exists = await this.albumArtistsRepo.albumArtistExistsByAlbumAndArtist(albumId, artistId, role);
-    if (!exists) {
-      logger.error(`Album artist relationship does not exist for album ${albumId}, artist ${artistId}, role ${role}`);
-      throw new Error('Album artist relationship not found');
-    }
-
-    return this.albumArtistsRepo.deleteAlbumArtistByAlbumAndArtist(albumId, artistId, role);
   };
 }

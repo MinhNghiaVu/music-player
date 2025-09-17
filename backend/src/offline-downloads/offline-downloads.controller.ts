@@ -34,19 +34,9 @@ export class OfflineDownloadsController {
     return this.offlineDownloadsService.getOfflineDownloadById(id);
   }
 
-  @Get('user/:userId') // GET /offline-downloads/user/:userId
-  async getOfflineDownloadsByUserId (
-    @Param('userId') userId: string
-  ): Promise<OfflineDownload[]> {
-    return this.offlineDownloadsService.getOfflineDownloadsByUserId(userId);
-  }
-
-  @Get('user/:userId/song/:songId') // GET /offline-downloads/user/:userId/song/:songId
-  async getOfflineDownloadByUserAndSong (
-    @Param('userId') userId: string,
-    @Param('songId') songId: string
-  ): Promise<OfflineDownload | null> {
-    return this.offlineDownloadsService.getOfflineDownloadByUserAndSong(userId, songId);
+  @Get() // GET /offline-downloads
+  async getAllOfflineDownloads(): Promise<OfflineDownload[]> {
+    return this.offlineDownloadsService.getAllOfflineDownloads();
   }
 
   @Patch(':id') // PATCH /offline-downloads/:id
@@ -63,14 +53,5 @@ export class OfflineDownloadsController {
     @Param('id') id: string
   ): Promise<OfflineDownload> {
     return this.offlineDownloadsService.deleteOfflineDownload(id);
-  }
-
-  @Delete('user/:userId/song/:songId') // DELETE /offline-downloads/user/:userId/song/:songId
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteOfflineDownloadByUserAndSong (
-    @Param('userId') userId: string,
-    @Param('songId') songId: string
-  ): Promise<OfflineDownload> {
-    return this.offlineDownloadsService.deleteOfflineDownloadByUserAndSong(userId, songId);
   }
 }

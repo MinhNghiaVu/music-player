@@ -34,27 +34,9 @@ export class SongArtistsController {
     return this.songArtistsService.getSongArtistById(id);
   }
 
-  @Get('song/:songId') // GET /song-artists/song/:songId
-  async getSongArtistsBySongId (
-    @Param('songId') songId: string
-  ): Promise<SongArtist[]> {
-    return this.songArtistsService.getSongArtistsBySongId(songId);
-  }
-
-  @Get('artist/:artistId') // GET /song-artists/artist/:artistId
-  async getSongArtistsByArtistId (
-    @Param('artistId') artistId: string
-  ): Promise<SongArtist[]> {
-    return this.songArtistsService.getSongArtistsByArtistId(artistId);
-  }
-
-  @Get('song/:songId/artist/:artistId') // GET /song-artists/song/:songId/artist/:artistId?role=main
-  async getSongArtistBySongAndArtist (
-    @Param('songId') songId: string,
-    @Param('artistId') artistId: string,
-    @Param('role') role?: string
-  ): Promise<SongArtist | null> {
-    return this.songArtistsService.getSongArtistBySongAndArtist(songId, artistId, role || 'main');
+  @Get() // GET /song-artists
+  async getAllSongArtists(): Promise<SongArtist[]> {
+    return this.songArtistsService.getAllSongArtists();
   }
 
   @Patch(':id') // PATCH /song-artists/:id
@@ -71,15 +53,5 @@ export class SongArtistsController {
     @Param('id') id: string
   ): Promise<SongArtist> {
     return this.songArtistsService.deleteSongArtist(id);
-  }
-
-  @Delete('song/:songId/artist/:artistId') // DELETE /song-artists/song/:songId/artist/:artistId?role=main
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteSongArtistBySongAndArtist (
-    @Param('songId') songId: string,
-    @Param('artistId') artistId: string,
-    @Param('role') role?: string
-  ): Promise<SongArtist> {
-    return this.songArtistsService.deleteSongArtistBySongAndArtist(songId, artistId, role || 'main');
   }
 }

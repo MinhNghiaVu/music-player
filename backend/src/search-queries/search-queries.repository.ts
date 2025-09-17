@@ -21,21 +21,9 @@ export class SearchQueriesRepo {
     return prisma.searchQuery.findUnique({ where: { id } });
   }
 
-  async getSearchQueriesByUserId (
-    userId: string
-  ): Promise<SearchQuery[]> {
+  async getAllSearchQueries (): Promise<SearchQuery[]> {
     return prisma.searchQuery.findMany({
-      where: { user_id: userId },
       orderBy: { searched_at: 'desc' }
-    });
-  }
-
-  async getRecentSearchQueries (
-    limit: number = 100
-  ): Promise<SearchQuery[]> {
-    return prisma.searchQuery.findMany({
-      orderBy: { searched_at: 'desc' },
-      take: limit
     });
   }
 
@@ -63,9 +51,5 @@ export class SearchQueriesRepo {
   ): Promise<boolean> {
     const searchQuery = await prisma.searchQuery.findUnique({ where: { id } });
     return searchQuery !== null;
-  };
-
-  async countSearchQueries (): Promise<number> {
-    return prisma.searchQuery.count();
   };
 }

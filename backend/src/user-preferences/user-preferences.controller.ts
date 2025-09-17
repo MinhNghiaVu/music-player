@@ -34,11 +34,9 @@ export class UserPreferencesController {
     return this.userPreferencesService.getUserPreferencesById(id);
   }
 
-  @Get('user/:userId') // GET /user-preferences/user/:userId
-  async getUserPreferencesByUserId (
-    @Param('userId') userId: string
-  ): Promise<UserPreferences | null> {
-    return this.userPreferencesService.getUserPreferencesByUserId(userId);
+  @Get() // GET /user-preferences
+  async getAllUserPreferences(): Promise<UserPreferences[]> {
+    return this.userPreferencesService.getAllUserPreferences();
   }
 
   @Patch(':id') // PATCH /user-preferences/:id
@@ -49,27 +47,11 @@ export class UserPreferencesController {
     return this.userPreferencesService.updateUserPreferences(id, updateUserPreferencesDto);
   }
 
-  @Patch('user/:userId') // PATCH /user-preferences/user/:userId
-  async updateUserPreferencesByUserId (
-    @Param('userId') userId: string,
-    @Body(ValidationPipe) updateUserPreferencesDto: UpdateUserPreferencesDto
-  ): Promise<UserPreferences> {
-    return this.userPreferencesService.updateUserPreferencesByUserId(userId, updateUserPreferencesDto);
-  }
-
   @Delete(':id') // DELETE /user-preferences/:id
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUserPreferences (
     @Param('id') id: string
   ): Promise<UserPreferences> {
     return this.userPreferencesService.deleteUserPreferences(id);
-  }
-
-  @Delete('user/:userId') // DELETE /user-preferences/user/:userId
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteUserPreferencesByUserId (
-    @Param('userId') userId: string
-  ): Promise<UserPreferences> {
-    return this.userPreferencesService.deleteUserPreferencesByUserId(userId);
   }
 }
