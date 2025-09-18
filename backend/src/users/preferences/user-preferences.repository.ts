@@ -2,7 +2,7 @@ import {
   Injectable
 } from '@nestjs/common'
 
-import { prisma } from '../database/client';
+import { prisma } from '../../database/client';
 import type { UserPreferences, Prisma } from '@prisma/client';
 
 @Injectable()

@@ -10,9 +10,9 @@ import {
   HttpStatus,
   ValidationPipe,
 } from '@nestjs/common';
-import { UserPreferencesService } from "@/user-preferences/user-preferences.service"
-import { CreateUserPreferencesDto } from "@/user-preferences/dto/create-user-preferences.dto"
-import { UpdateUserPreferencesDto } from "@/user-preferences/dto/update-user-preferences.dto"
+import { UserPreferencesService } from "@/users/preferences/user-preferences.service"
+import { CreateUserPreferencesDto } from "@/users/preferences/dto/create-user-preferences.dto"
+import { UpdateUserPreferencesDto } from "@/users/preferences/dto/update-user-preferences.dto"
 import type { UserPreferences } from "@prisma/client"
 
 @Controller('user-preferences') 

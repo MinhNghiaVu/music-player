@@ -10,9 +10,20 @@ export class ArtistsService {
   async createArtist(
     input: Prisma.ArtistCreateInput
   ): Promise<Artist> {
+    // Basic validation
+    if (!input.name) {
+      logger.error(`Artist name is missing in input ${JSON.stringify(input)}`);
+      throw new Error('Artist name is required');
+    }
 
     const artistData: Prisma.ArtistCreateInput = {
-      // TODO: Apply create data
+      name: input.name.trim(),
+      bio: input.bio?.trim(),
+      profile_image_url: input.profile_image_url,
+      banner_image_url: input.banner_image_url,
+      verified: input.verified || false,
+      country_code: input.country_code,
+      genres: input.genres || [],
     };
     
     logger.info(`Creating artist with data: ${JSON.stringify(artistData)}`);
@@ -51,8 +62,21 @@ export class ArtistsService {
       throw new Error('Artist not found');
     }
 
+    // Validate name if provided
+    if (input.name !== undefined && !input.name) {
+      logger.error(`Invalid artist name for ID ${id}`);
+      throw new Error('Artist name cannot be empty');
+    }
+
     const updateData: Prisma.ArtistUpdateInput = {
-      // TODO: Apply update data for artists
+      ...(input.name && { name: input.name }),
+      ...(input.bio !== undefined && { bio: input.bio }),
+      ...(input.profile_image_url !== undefined && { profile_image_url: input.profile_image_url }),
+      ...(input.banner_image_url !== undefined && { banner_image_url: input.banner_image_url }),
+      ...(input.verified !== undefined && { verified: input.verified }),
+      ...(input.country_code !== undefined && { country_code: input.country_code }),
+      ...(input.genres !== undefined && { genres: input.genres }),
+      updated_at: new Date()
     };
 
     return this.artistsRepo.updateArtist(id, updateData);
